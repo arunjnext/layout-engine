@@ -1,0 +1,1 @@
+export { ComponentFactory } from './ComponentFactory';
