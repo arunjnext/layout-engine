@@ -1,5 +1,5 @@
-import { AccomplishmentsSplitter } from './accomplishments/AccomplishmentsSplitter';
 import type { BaseSplitter, SplitOptions, SplitResult } from './base';
+import { PositionSplitter } from './position/PositionSplitter';
 
 /**
  * Splitter Factory - Routes to appropriate splitter based on contentType
@@ -9,10 +9,10 @@ export class SplitterFactory {
   
   constructor() {
     // Register all splitters
-    const accomplishmentsSplitter = new AccomplishmentsSplitter();
+    const positionSplitter = new PositionSplitter();
     
-    this.register('work', accomplishmentsSplitter);
-    this.register('education', accomplishmentsSplitter);
+    this.register('work', positionSplitter);
+    this.register('education', positionSplitter);
     // Add more as needed:
     // this.register('skills', new SkillsSplitter());
     // this.register('summary', new SummarySplitter());

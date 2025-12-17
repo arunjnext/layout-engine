@@ -1,15 +1,15 @@
 import type { TemplateConfig } from '../../types';
 import type { BaseSplitter, SplitOptions, SplitResult } from '../base';
-import { AccomplishmentsHeightCalculator } from './AccomplishmentsHeightCalculator';
+import { PositionHeightCalculator } from './PositionHeightCalculator';
 
 /**
- * Accomplishments Splitter - Handles work/education sections
+ * Position Splitter - Handles work/education sections
  */
-export class AccomplishmentsSplitter implements BaseSplitter {
-  private heightCalculator: AccomplishmentsHeightCalculator;
+export class PositionSplitter implements BaseSplitter {
+  private heightCalculator: PositionHeightCalculator;
   
   constructor() {
-    this.heightCalculator = new AccomplishmentsHeightCalculator();
+    this.heightCalculator = new PositionHeightCalculator();
   }
   
   async split(options: SplitOptions): Promise<SplitResult> {
@@ -60,3 +60,4 @@ export class AccomplishmentsSplitter implements BaseSplitter {
     return height <= availableSpace;
   }
 }
+

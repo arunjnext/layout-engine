@@ -8,36 +8,30 @@ import { RealtimeLayoutEngine } from './RealtimeLayoutEngine';
  */
 export class RealtimeResumeEditor {
   private layoutEngine: RealtimeLayoutEngine;
-  private spaceCalculator: SpaceCalculator;
-  
-  constructor(contentAreaId: string, templateConfig: TemplateConfig) {
-    // Initialize space calculator
-    this.spaceCalculator = new SpaceCalculator({
-      pageHeight: 1123, // A4 at 96 DPI
+
+  constructor(pagesContainerId: string, templateConfig: TemplateConfig) {
+    const initialSpaceCalculator = new SpaceCalculator({
+      pageHeight: 1123,
       headerHeight: 50,
       footerHeight: 30,
       marginTop: 20,
       marginBottom: 20
     });
-    
-    // Initialize layout engine
+
     this.layoutEngine = new RealtimeLayoutEngine(
-      contentAreaId,
-      this.spaceCalculator,
+      pagesContainerId,
+      initialSpaceCalculator,
       templateConfig
     );
   }
-  
-  /**
-   * User adds new experience
-   */
+
   async onExperienceAdded(position: Position): Promise<void> {
     try {
       const result = await this.layoutEngine.addExperience(position);
-      
+
       if (result.success && result.placed) {
         this.updateRemainingSpaceDisplay(result.remainingSpace);
-        
+
         if (result.split) {
           this.showSplitWarning();
         }
@@ -49,34 +43,28 @@ export class RealtimeResumeEditor {
       this.showError();
     }
   }
-  
-  /**
-   * User updates existing experience
-   */
+
   async onExperienceUpdated(positionId: string, position: Position): Promise<void> {
     this.layoutEngine.removeExperience(positionId);
     await this.onExperienceAdded(position);
   }
-  
-  /**
-   * Get current remaining space
-   */
+
   getRemainingSpace(): number {
-    return this.spaceCalculator.calculateRemainingSpace();
+    return this.layoutEngine.getCurrentPageRemainingSpace();
   }
-  
-  /**
-   * Get space breakdown for debugging
-   */
+
   getSpaceBreakdown() {
-    return this.spaceCalculator.getBreakdown();
+    return this.layoutEngine.getCurrentPageSpaceBreakdown();
   }
-  
+
   private updateRemainingSpaceDisplay(remaining: number): void {
+    const currentPage = this.layoutEngine.getCurrentPageIndex() + 1;
+    const totalPages = this.layoutEngine.getPageCount();
+
     const display = document.getElementById('remaining-space-display');
     if (display) {
-      display.textContent = `Remaining space: ${remaining}px`;
-      
+      display.textContent = `Page ${currentPage}/${totalPages} - Remaining: ${remaining}px`;
+
       if (remaining < 100) {
         display.style.color = 'red';
       } else if (remaining < 300) {

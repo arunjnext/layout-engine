@@ -1,27 +1,27 @@
 import type { AccomplishmentLines } from '../../types/resume';
 
 /**
- * Calculates heights of accomplishments
+ * Calculates heights of positions
  */
-export class AccomplishmentsHeightCalculator {
+export class PositionHeightCalculator {
   /**
-   * Calculate total height of all accomplishments
+   * Calculate total height of all positions
    */
-  getAccomplishmentsHeight(params: {
+  getPositionsHeight(params: {
     accomplishmentsConfig: any;
-    accomplishmentLines: AccomplishmentLines[];
+    positionLines: AccomplishmentLines[];
     lineHeight: number;
   }): number {
-    const { accomplishmentsConfig, accomplishmentLines, lineHeight } = params;
+    const { accomplishmentsConfig, positionLines, lineHeight } = params;
     let totalHeight = 0;
     
-    accomplishmentLines.forEach((accomplishmentLineData, index) => {
-      const itemHeight = this.getAccomplishmentItemHeight({
+    positionLines.forEach((positionLineData, index) => {
+      const itemHeight = this.getPositionItemHeight({
         accomplishmentsConfig,
-        accomplishmentLines: accomplishmentLineData,
+        positionLines: positionLineData,
         index,
         lineHeight,
-        accomplishmentIndex: index,
+        positionIndex: index,
       });
       totalHeight += itemHeight.accomplishment;
     });
@@ -30,14 +30,14 @@ export class AccomplishmentsHeightCalculator {
   }
   
   /**
-   * Calculate height of a single accomplishment item
+   * Calculate height of a single position item
    */
-  getAccomplishmentItemHeight(params: {
+  getPositionItemHeight(params: {
     accomplishmentsConfig: any;
-    accomplishmentLines: AccomplishmentLines;
+    positionLines: AccomplishmentLines;
     index: number;
     lineHeight: number;
-    accomplishmentIndex: number;
+    positionIndex: number;
     ignoreIntro?: boolean;
     ignoreIntroMargin?: boolean;
     statementsStartIndex?: number;
@@ -51,9 +51,9 @@ export class AccomplishmentsHeightCalculator {
       statementsStartIndex = 0,
       startingStatementLineStartIndex = 0,
       introLineStartIndex = 0,
-      accomplishmentLines,
+      positionLines,
       lineHeight,
-      accomplishmentIndex,
+      positionIndex,
     } = params;
     
     // Calculate intro height
@@ -61,7 +61,7 @@ export class AccomplishmentsHeightCalculator {
       ? 0
       : this.getIntroHeight({
           accomplishmentsConfig,
-          lines: accomplishmentLines.intro,
+          lines: positionLines.intro,
           index,
           ignoreIntroMargin: params.ignoreIntroMargin,
           lineHeight,
@@ -71,17 +71,17 @@ export class AccomplishmentsHeightCalculator {
     // Calculate statements height
     const statementsHeight = this.getStatementsListHeight({
       accomplishmentsConfig,
-      hasIntro: accomplishmentLines.intro.length > 0,
-      statements: accomplishmentLines.statements,
+      hasIntro: positionLines.intro.length > 0,
+      statements: positionLines.statements,
       statementsStartIndex,
       startingStatementLineStartIndex,
       lineHeight,
-      accomplishmentIndex,
+      positionIndex,
     });
     
     let totalHeight = introHeight + statementsHeight;
     
-    // Add margin top for first accomplishment
+    // Add margin top for first position
     if (index === 0 && !introLineStartIndex && !startingStatementLineStartIndex) {
       totalHeight += accomplishmentsConfig.marginTop || 0;
     }
@@ -127,7 +127,7 @@ export class AccomplishmentsHeightCalculator {
     lineHeight: number;
     statementsStartIndex: number;
     startingStatementLineStartIndex: number;
-    accomplishmentIndex: number;
+    positionIndex: number;
   }): number {
     const {
       accomplishmentsConfig,
@@ -136,7 +136,7 @@ export class AccomplishmentsHeightCalculator {
       lineHeight,
       statementsStartIndex,
       startingStatementLineStartIndex,
-      accomplishmentIndex,
+      positionIndex,
     } = params;
     
     let totalHeight = 0;
@@ -153,7 +153,7 @@ export class AccomplishmentsHeightCalculator {
         index,
         hasIntro,
         accomplishmentsConfig,
-        accomplishmentIndex,
+        positionIndex,
       });
     });
     
@@ -167,7 +167,7 @@ export class AccomplishmentsHeightCalculator {
     index: number;
     hasIntro: boolean;
     lineStartIndex: number;
-    accomplishmentIndex: number;
+    positionIndex: number;
   }): number {
     const {
       accomplishmentsConfig,
@@ -176,7 +176,7 @@ export class AccomplishmentsHeightCalculator {
       index,
       hasIntro,
       lineStartIndex,
-      accomplishmentIndex,
+      positionIndex,
     } = params;
     
     if (!lines || lines.length === 0) return 0;
@@ -190,7 +190,7 @@ export class AccomplishmentsHeightCalculator {
         hasIntro,
         index,
         lineStartIndex,
-        accomplishmentIndex,
+        positionIndex,
       });
     }
     
@@ -202,9 +202,9 @@ export class AccomplishmentsHeightCalculator {
     hasIntro: boolean;
     index: number;
     lineStartIndex: number;
-    accomplishmentIndex: number;
+    positionIndex: number;
   }): number {
-    const { accomplishmentsConfig, hasIntro, index, lineStartIndex, accomplishmentIndex } = params;
+    const { accomplishmentsConfig, hasIntro, index, lineStartIndex, positionIndex } = params;
     
     if (lineStartIndex > 0) return 0;
     
@@ -214,7 +214,7 @@ export class AccomplishmentsHeightCalculator {
       marginTop = accomplishmentsConfig.statements?.list?.marginTop || 0;
     }
     
-    if (index === 0 && !hasIntro && accomplishmentIndex === 0) {
+    if (index === 0 && !hasIntro && positionIndex === 0) {
       marginTop = accomplishmentsConfig.marginTop || 0;
     }
     
@@ -244,3 +244,4 @@ export class AccomplishmentsHeightCalculator {
     return marginTop;
   }
 }
+

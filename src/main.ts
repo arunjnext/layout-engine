@@ -45,9 +45,9 @@ const templateConfig: TemplateConfig = {
 };
 
 // Wait for DOM to be ready
-function initApp() {
+async function initApp() {
   // Initialize editor
-  const editor = new RealtimeResumeEditor('resume-content-area', templateConfig);
+  const editor = new RealtimeResumeEditor('resume-pages-container', templateConfig);
 
   // Example: User adds experience
   const wor1: Position = {
@@ -148,27 +148,81 @@ function initApp() {
     ]
   };
 
-  // Add experience
-  editor.onExperienceAdded(wor1);
-  editor.onExperienceAdded(wor2);
-  editor.onExperienceAdded(wor3);
-  editor.onExperienceAdded(wor4);
-  editor.onExperienceAdded(wor5);
-  editor.onExperienceAdded(wor6);
-  editor.onExperienceAdded(wor7);
+
+  const wor8: Position = {
+    _id: 'work-8',
+    title: 'Full Stack Developer',
+    company: 'Tech Corp',
+    startDate: '2020-01',
+    endDate: '2023-12',
+    intro: 'Led development of scalable systems',
+    description: [
+      'Built REST API serving 1M+ requests/day',
+      'Improved performance by 50%',
+      'Led team of 5 developers',
+      'Built REST API serving 1M+ requests/day',
+    ]
+  };
+
+  const wor9: Position = {
+    _id: 'work-9',
+    title: 'Software Engineer',
+    company: 'Tech Corp',
+    startDate: '2020-01',
+    endDate: '2023-12',
+    intro: 'Led development of scalable systems',
+    description: [
+      
+    ]
+  };
+
+  const wor10: Position = {
+    _id: 'work-10',
+    title: 'Software Engineer',
+    company: 'Tech Corp',
+    startDate: '2020-01',
+    endDate: '2023-12',
+    intro: 'Led development of scalable systems',
+    description: [
+      'Improved performance by 50%',
+      'Led team of 5 developers'
+    ]
+  };
+
+  const wor11: Position = {
+    _id: 'work-11',
+    title: 'Software Engineer',
+    company: 'Tech Corp',
+    startDate: '2020-01',
+    endDate: '2023-12',
+    intro: 'Led development of scalable systems',
+    description: [
+      'Built REST API serving 1M+ requests/day',
+      'Improved performance by 50%',
+      'Led team of 5 developers'
+    ]
+  };
+  // Add experience sequentially to ensure proper page tracking
+  await editor.onExperienceAdded(wor1);
+  await editor.onExperienceAdded(wor2);
+  await editor.onExperienceAdded(wor11);
+  await editor.onExperienceAdded(wor10);
+  await editor.onExperienceAdded(wor9);
+  await editor.onExperienceAdded(wor8);
+
 
   return editor;
 }
 
 // Initialize when DOM is ready
-let editor: RealtimeResumeEditor;
+let editor: RealtimeResumeEditor | undefined;
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    editor = initApp();
+  document.addEventListener('DOMContentLoaded', async () => {
+    editor = await initApp();
   });
 } else {
   // DOM is already ready
-  editor = initApp();
+  initApp().then(e => { editor = e; });
 }
 
 // Export for use in other modules

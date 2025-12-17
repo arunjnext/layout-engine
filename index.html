@@ -13,11 +13,24 @@
         background: #f5f5f5;
       }
       
-      #resume-container {
+      #resume-pages-container {
         max-width: 210mm;
         margin: 0 auto;
+        background: #f5f5f5;
+      }
+      
+      .resume-page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm;
+        margin: 0 auto 20px;
         background: white;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        page-break-after: always;
+      }
+      
+      .resume-page:last-child {
+        margin-bottom: 0;
       }
       
       #resume-content-area {
@@ -66,9 +79,7 @@
   </head>
   <body>
     <div id="remaining-space-display">Remaining space: --</div>
-    <div id="resume-container">
-      <div id="resume-content-area"></div>
-    </div>
+    <div id="resume-pages-container"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
