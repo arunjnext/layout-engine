@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ExperienceForm } from './ExperienceForm';
 import type { Position } from '@lib';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Plus, Maximize2, Minimize2 } from 'lucide-react';
 
 interface ExperienceManagerProps {
   experiences: Position[];
@@ -27,23 +31,22 @@ export function ExperienceManager({ experiences, onChange }: ExperienceManagerPr
     setExpandedIds(new Set([...expandedIds, newExperience._id]));
   };
 
-  const handleUpdateExperience = (index: number, updatedExperience: Position) => {
-    const updatedExperiences = experiences.map((exp, i) => 
-      i === index ? updatedExperience : exp
+  const handleUpdateExperience = useCallback((updatedExperience: Position) => {
+    const updatedExperiences = experiences.map((exp) => 
+      exp._id === updatedExperience._id ? updatedExperience : exp
     );
     onChange(updatedExperiences);
-  };
+  }, [experiences, onChange]);
 
-  const handleRemoveExperience = (index: number) => {
-    const experienceId = experiences[index]._id;
-    const updatedExperiences = experiences.filter((_, i) => i !== index);
+  const handleRemoveExperience = useCallback((experienceId: string) => {
+    const updatedExperiences = experiences.filter((exp) => exp._id !== experienceId);
     onChange(updatedExperiences);
     
     // Remove from expanded set
     const newExpandedIds = new Set(expandedIds);
     newExpandedIds.delete(experienceId);
     setExpandedIds(newExpandedIds);
-  };
+  }, [experiences, onChange, expandedIds]);
 
   const handleToggleExpand = (experienceId: string) => {
     const newExpandedIds = new Set(expandedIds);
@@ -72,72 +75,89 @@ export function ExperienceManager({ experiences, onChange }: ExperienceManagerPr
   ).length;
 
   return (
-    <div className="experience-manager">
-      <div className="manager-header">
-        <div className="manager-title">
-          <h2>Work Experience</h2>
-          <span className="experience-count">
-            {validExperiencesCount} of {experiences.length} complete
-          </span>
-        </div>
-        <div className="manager-actions">
+    <Card className="shadow-lg">
+      <CardHeader>
+        <div className="flex justify-between items-start flex-wrap gap-4">
+          <div className="space-y-2">
+            <CardTitle className="text-2xl flex items-center gap-3">
+              Work Experience
+              <Badge variant="secondary" className="text-sm font-semibold">
+                {validExperiencesCount} of {experiences.length} complete
+              </Badge>
+            </CardTitle>
+            <CardDescription className="text-base">
+              Add and manage your work experiences
+            </CardDescription>
+          </div>
           {experiences.length > 0 && (
-            <>
-              <button
+            <div className="flex gap-2">
+              <Button
                 type="button"
-                className="btn-secondary btn-small"
+                variant="outline"
+                size="sm"
                 onClick={handleExpandAll}
+                className="gap-2"
               >
+                <Maximize2 className="h-4 w-4" />
                 Expand All
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="btn-secondary btn-small"
+                variant="outline"
+                size="sm"
                 onClick={handleCollapseAll}
+                className="gap-2"
               >
+                <Minimize2 className="h-4 w-4" />
                 Collapse All
-              </button>
-            </>
+              </Button>
+            </div>
           )}
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="experiences-list">
+      <CardContent className="space-y-4">
         {experiences.length === 0 ? (
-          <div className="empty-state">
-            <p>No experiences added yet.</p>
-            <p className="empty-state-hint">Click the button below to add your first experience.</p>
+          <div className="text-center py-12 space-y-3">
+            <p className="text-lg text-muted-foreground">No experiences added yet.</p>
+            <p className="text-sm text-muted-foreground">
+              Click the button below to add your first experience.
+            </p>
           </div>
         ) : (
-          experiences.map((experience, index) => (
-            <ExperienceForm
-              key={experience._id}
-              experience={experience}
-              onChange={(updated) => handleUpdateExperience(index, updated)}
-              onRemove={() => handleRemoveExperience(index)}
-              isExpanded={expandedIds.has(experience._id)}
-              onToggleExpand={() => handleToggleExpand(experience._id)}
-            />
-          ))
+          <div className="space-y-4">
+            {experiences.map((experience) => (
+              <ExperienceForm
+                key={experience._id}
+                experience={experience}
+                onChange={handleUpdateExperience}
+                onRemove={() => handleRemoveExperience(experience._id)}
+                isExpanded={expandedIds.has(experience._id)}
+                onToggleExpand={() => handleToggleExpand(experience._id)}
+              />
+            ))}
+          </div>
         )}
-      </div>
 
-      <button
-        type="button"
-        className="btn-add-experience"
-        onClick={handleAddExperience}
-      >
-        + Add New Experience
-      </button>
+        <Button
+          type="button"
+          onClick={handleAddExperience}
+          className="w-full bg-linear-to-br from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white shadow-lg hover:shadow-xl transition-all gap-2"
+          size="lg"
+        >
+          <Plus className="h-5 w-5" />
+          Add New Experience
+        </Button>
 
-      {experiences.length > 0 && (
-        <div className="manager-info">
-          <p className="info-text">
-            <strong>Tip:</strong> Fill in all required fields (marked with *) to see accurate preview updates.
-          </p>
-        </div>
-      )}
-    </div>
+        {experiences.length > 0 && (
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/30 border-l-4 border-blue-500 rounded">
+            <p className="text-sm text-foreground">
+              <strong className="text-blue-600 dark:text-blue-400">Tip:</strong> Fill in all required 
+              fields (marked with <span className="text-destructive">*</span>) to see accurate preview updates.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
-

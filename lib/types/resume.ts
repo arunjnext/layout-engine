@@ -9,7 +9,7 @@ export interface Position {
   startDate?: string;
   endDate?: string;
   intro?: string;
-  description?: string[];
+  description: string[];
 }
 
 export interface Skill {

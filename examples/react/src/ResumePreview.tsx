@@ -1,6 +1,8 @@
 import type { Position } from "@lib";
 import { useEffect, useRef } from "react";
 import { useResumeLayout } from "./useResumeLayout";
+import { Card, CardContent } from "./components/ui/card";
+import { Badge } from "./components/ui/badge";
 
 interface ResumePreviewProps {
   experiences: Position[];
@@ -96,29 +98,58 @@ export function ResumePreview({ experiences }: ResumePreviewProps) {
   }, [engine, isReady, experiences]);
 
   return (
-    <div className="resume-preview">
-      <div className="resume-stats">
-        <div className="stat">
-          <span className="stat-label">Pages:</span>
-          <span className="stat-value">{pageCount}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Remaining Space:</span>
-          <span
-            className={`stat-value ${getRemainingSpaceClass(remainingSpace)}`}
-          >
-            {remainingSpace}px
-          </span>
-        </div>
-      </div>
+    <div className="space-y-4">
+      {/* Stats Card */}
+      <Card className="bg-gray-900 text-white border-gray-800 shadow-xl">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold opacity-90">Pages</p>
+              <p className="text-3xl font-bold">{pageCount}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold opacity-90">Remaining Space</p>
+              <div className="flex items-center gap-2">
+                <p className="text-3xl font-bold">{remainingSpace}px</p>
+                <Badge 
+                  variant={getRemainingSpaceBadgeVariant(remainingSpace)}
+                  className={getRemainingSpaceBadgeClass(remainingSpace)}
+                >
+                  {getRemainingSpaceLabel(remainingSpace)}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div ref={containerRef} className="resume-container" />
+      {/* Resume Container */}
+      <Card className="shadow-lg overflow-hidden">
+        <CardContent className="p-6 bg-linear-to-br from-gray-50 to-gray-100">
+          <div 
+            ref={containerRef} 
+            className="resume-container max-w-[210mm] mx-auto"
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function getRemainingSpaceClass(space: number): string {
-  if (space < 100) return "low";
-  if (space < 300) return "medium";
-  return "high";
+function getRemainingSpaceLabel(space: number): string {
+  if (space < 100) return "Low";
+  if (space < 300) return "Medium";
+  return "High";
+}
+
+function getRemainingSpaceBadgeVariant(space: number): "default" | "secondary" | "destructive" {
+  if (space < 100) return "destructive";
+  if (space < 300) return "secondary";
+  return "default";
+}
+
+function getRemainingSpaceBadgeClass(space: number): string {
+  if (space < 100) return "bg-red-500 hover:bg-red-600";
+  if (space < 300) return "bg-yellow-500 hover:bg-yellow-600";
+  return "bg-green-500 hover:bg-green-600";
 }

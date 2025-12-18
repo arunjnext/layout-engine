@@ -1,5 +1,17 @@
-import { useState, useEffect } from 'react';
-import type { Position } from '@lib';
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { Position } from "@lib";
+import { ChevronDown, ChevronRight, Plus, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import {
+  experienceSchema,
+  type ExperienceFormData,
+} from "../schemas/experienceSchema";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 interface ExperienceFormProps {
   experience: Position;
@@ -9,253 +21,307 @@ interface ExperienceFormProps {
   onToggleExpand: () => void;
 }
 
-interface ValidationErrors {
-  title?: string;
-  company?: string;
-  startDate?: string;
-  endDate?: string;
-  intro?: string;
-}
-
 export function ExperienceForm({
   experience,
   onChange,
   onRemove,
   isExpanded,
-  onToggleExpand
+  onToggleExpand,
 }: ExperienceFormProps) {
-  const [errors, setErrors] = useState<ValidationErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const {
+    register,
+    control,
+    formState: { errors, isValid, touchedFields },
+    watch,
+    reset,
+  } = useForm<ExperienceFormData>({
+    resolver: zodResolver(experienceSchema),
+    mode: "onChange",
+    defaultValues: {
+      _id: experience._id,
+      title: experience.title || "",
+      company: experience.company || "",
+      startDate: experience.startDate || "",
+      endDate: experience.endDate || "",
+      intro: experience.intro || "",
+      description: experience.description || [],
+    },
+  });
 
-  // Validate form fields
-  const validate = (): boolean => {
-    const newErrors: ValidationErrors = {};
+  // useFieldArray for dynamic description/achievements management
+  const { fields, append, remove } = useFieldArray({
+    control,
+    // @ts-expect-error - Type system conflict between Zod and useFieldArray for array fields
+    name: "description",
+  });
 
-    if (!experience.title?.trim()) {
-      newErrors.title = 'Title is required';
-    }
-
-    if (!experience.company?.trim()) {
-      newErrors.company = 'Company is required';
-    }
-
-    if (!experience.startDate?.trim()) {
-      newErrors.startDate = 'Start date is required';
-    }
-
-    if (!experience.endDate?.trim()) {
-      newErrors.endDate = 'End date is required';
-    }
-
-    if (!experience.intro?.trim()) {
-      newErrors.intro = 'Intro is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Validate on change
+  // Stabilize onChange callback with useRef to prevent infinite loops
+  const onChangeRef = useRef(onChange);
   useEffect(() => {
-    if (Object.keys(touched).length > 0) {
-      validate();
-    }
-  }, [experience, touched]);
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
-  const handleFieldChange = (field: keyof Position, value: string) => {
-    setTouched({ ...touched, [field]: true });
-    onChange({ ...experience, [field]: value });
-  };
+  // Reset form when switching between different experiences (not on every field change)
+  useEffect(() => {
+    reset(
+      {
+        _id: experience._id,
+        title: experience.title || "",
+        company: experience.company || "",
+        startDate: experience.startDate || "",
+        endDate: experience.endDate || "",
+        intro: experience.intro || "",
+        description: experience.description || [],
+      },
+      {
+        keepDefaultValues: false, // Important for useFieldArray to properly update
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [experience._id, reset]); // Only reset when experience ID changes, not on field updates
 
-  const handleDescriptionChange = (index: number, value: string) => {
-    const newDescription = [...(experience.description || [])];
-    newDescription[index] = value;
-    onChange({ ...experience, description: newDescription });
-  };
+  // Watch form values and propagate changes to parent using subscription
+  useEffect(() => {
+    const subscription = watch((value) => {
+      onChangeRef.current(value as Position);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]); // watch is stable from useForm
 
-  const addDescriptionBullet = () => {
-    const newDescription = [...(experience.description || []), ''];
-    onChange({ ...experience, description: newDescription });
-  };
-
-  const removeDescriptionBullet = (index: number) => {
-    const newDescription = (experience.description || []).filter((_, i) => i !== index);
-    onChange({ ...experience, description: newDescription });
-  };
-
-  const handleBlur = (field: string) => {
-    setTouched({ ...touched, [field]: true });
-  };
-
-  const isValid = Object.keys(errors).length === 0 && Object.keys(touched).length > 0;
+  const hasTouchedFields = Object.keys(touchedFields).length > 0;
+  const showValidBadge = isValid && hasTouchedFields;
+  const showInvalidBadge = !isValid && hasTouchedFields;
 
   return (
-    <div className="experience-card">
-      <div className="experience-card-header" onClick={onToggleExpand}>
-        <div className="experience-card-title">
-          <h3>{experience.title || 'New Experience'}</h3>
-          <span className="experience-card-company">{experience.company || 'Company'}</span>
+    <div
+      key={experience._id}
+      className="border-2 border-border rounded-lg overflow-hidden transition-all hover:border-primary/50 hover:shadow-md bg-card"
+    >
+      <div
+        className="flex justify-between items-center p-4 cursor-pointer bg-background hover:bg-accent/50 transition-colors select-none"
+        onClick={onToggleExpand}
+      >
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-foreground mb-1">
+            {experience.title || "New Experience"}
+          </h3>
+          <span className="text-sm font-medium text-primary">
+            {experience.company || "Company"}
+          </span>
         </div>
-        <div className="experience-card-actions">
-          {isValid && <span className="validation-badge valid">✓</span>}
-          {Object.keys(errors).length > 0 && Object.keys(touched).length > 0 && (
-            <span className="validation-badge invalid">!</span>
+        <div className="flex items-center gap-2">
+          {showValidBadge && (
+            <Badge
+              variant="default"
+              className="bg-green-500 hover:bg-green-600"
+            >
+              ✓
+            </Badge>
           )}
-          <button
+          {showInvalidBadge && <Badge variant="destructive">!</Badge>}
+          <Button
             type="button"
-            className="btn-icon"
+            variant="ghost"
+            size="icon"
             onClick={(e) => {
               e.stopPropagation();
               onToggleExpand();
             }}
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
+            aria-label={isExpanded ? "Collapse" : "Expand"}
           >
-            {isExpanded ? '▼' : '▶'}
-          </button>
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
 
       {isExpanded && (
-        <div className="experience-card-content">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor={`title-${experience._id}`}>
-                Job Title <span className="required">*</span>
-              </label>
-              <input
+        <div className="p-6 border-t-2 border-border bg-card">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor={`title-${experience._id}`}
+                className="text-sm font-semibold"
+              >
+                Job Title <span className="text-destructive">*</span>
+              </Label>
+              <Input
                 id={`title-${experience._id}`}
-                type="text"
-                value={experience.title || ''}
-                onChange={(e) => handleFieldChange('title', e.target.value)}
-                onBlur={() => handleBlur('title')}
-                className={errors.title && touched.title ? 'error' : ''}
+                {...register("title")}
                 placeholder="e.g. Senior Software Engineer"
+                className={
+                  errors.title
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }
               />
-              {errors.title && touched.title && (
-                <span className="error-message">{errors.title}</span>
+              {errors.title && (
+                <p className="text-sm text-destructive font-medium">
+                  {errors.title.message}
+                </p>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor={`company-${experience._id}`}>
-                Company <span className="required">*</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label
+                htmlFor={`company-${experience._id}`}
+                className="text-sm font-semibold"
+              >
+                Company <span className="text-destructive">*</span>
+              </Label>
+              <Input
                 id={`company-${experience._id}`}
-                type="text"
-                value={experience.company || ''}
-                onChange={(e) => handleFieldChange('company', e.target.value)}
-                onBlur={() => handleBlur('company')}
-                className={errors.company && touched.company ? 'error' : ''}
+                {...register("company")}
                 placeholder="e.g. Tech Innovations Inc."
+                className={
+                  errors.company
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }
               />
-              {errors.company && touched.company && (
-                <span className="error-message">{errors.company}</span>
+              {errors.company && (
+                <p className="text-sm text-destructive font-medium">
+                  {errors.company.message}
+                </p>
               )}
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor={`startDate-${experience._id}`}>
-                Start Date <span className="required">*</span>
-              </label>
-              <input
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor={`startDate-${experience._id}`}
+                className="text-sm font-semibold"
+              >
+                Start Date <span className="text-destructive">*</span>
+              </Label>
+              <Input
                 id={`startDate-${experience._id}`}
-                type="text"
-                value={experience.startDate || ''}
-                onChange={(e) => handleFieldChange('startDate', e.target.value)}
-                onBlur={() => handleBlur('startDate')}
-                className={errors.startDate && touched.startDate ? 'error' : ''}
+                {...register("startDate")}
                 placeholder="e.g. 2021-06 or Jan 2021"
+                className={
+                  errors.startDate
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }
               />
-              {errors.startDate && touched.startDate && (
-                <span className="error-message">{errors.startDate}</span>
+              {errors.startDate && (
+                <p className="text-sm text-destructive font-medium">
+                  {errors.startDate.message}
+                </p>
               )}
             </div>
 
-            <div className="form-group">
-              <label htmlFor={`endDate-${experience._id}`}>
-                End Date <span className="required">*</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label
+                htmlFor={`endDate-${experience._id}`}
+                className="text-sm font-semibold"
+              >
+                End Date <span className="text-destructive">*</span>
+              </Label>
+              <Input
                 id={`endDate-${experience._id}`}
-                type="text"
-                value={experience.endDate || ''}
-                onChange={(e) => handleFieldChange('endDate', e.target.value)}
-                onBlur={() => handleBlur('endDate')}
-                className={errors.endDate && touched.endDate ? 'error' : ''}
+                {...register("endDate")}
                 placeholder="e.g. 2024-12 or Present"
+                className={
+                  errors.endDate
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }
               />
-              {errors.endDate && touched.endDate && (
-                <span className="error-message">{errors.endDate}</span>
+              {errors.endDate && (
+                <p className="text-sm text-destructive font-medium">
+                  {errors.endDate.message}
+                </p>
               )}
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor={`intro-${experience._id}`}>
-              Introduction <span className="required">*</span>
-            </label>
-            <textarea
+          <div className="space-y-2 mb-4">
+            <Label
+              htmlFor={`intro-${experience._id}`}
+              className="text-sm font-semibold"
+            >
+              Introduction <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
               id={`intro-${experience._id}`}
-              value={experience.intro || ''}
-              onChange={(e) => handleFieldChange('intro', e.target.value)}
-              onBlur={() => handleBlur('intro')}
-              className={errors.intro && touched.intro ? 'error' : ''}
+              {...register("intro")}
               placeholder="Brief summary of your role and key responsibilities..."
               rows={3}
+              className={
+                errors.intro
+                  ? "border-destructive focus-visible:ring-destructive"
+                  : ""
+              }
             />
-            {errors.intro && touched.intro && (
-              <span className="error-message">{errors.intro}</span>
+            {errors.intro && (
+              <p className="text-sm text-destructive font-medium">
+                {errors.intro.message}
+              </p>
             )}
           </div>
 
-          <div className="form-group">
-            <label>
-              Key Achievements <span className="optional">(optional)</span>
-            </label>
-            <div className="description-bullets">
-              {(experience.description || []).map((bullet, index) => (
-                <div key={index} className="bullet-item">
-                  <textarea
-                    value={bullet}
-                    onChange={(e) => handleDescriptionChange(index, e.target.value)}
+          <div className="space-y-2 mb-4">
+            <Label className="text-sm font-semibold">
+              Key Achievements{" "}
+              <span className="text-muted-foreground italic font-normal">
+                (optional)
+              </span>
+            </Label>
+            <div className="space-y-3">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {fields.map((field: any, index: number) => (
+                <div key={field.id} className="flex gap-2 items-start">
+                  <Textarea
+                    {...register(`description.${index}` as const)}
                     placeholder={`Achievement ${index + 1}...`}
                     rows={2}
+                    className="flex-1 resize-none"
                   />
-                  <button
+                  <Button
                     type="button"
-                    className="btn-remove-bullet"
-                    onClick={() => removeDescriptionBullet(index)}
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => remove(index)}
                     aria-label="Remove bullet"
+                    className="shrink-0 h-10 w-10"
                   >
-                    ×
-                  </button>
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>
-            <button
+            <Button
               type="button"
-              className="btn-add-bullet"
-              onClick={addDescriptionBullet}
+              variant="outline"
+              onClick={() => append("")}
+              className="w-full border-dashed border-2 hover:bg-primary hover:text-primary-foreground"
             >
-              + Add Achievement
-            </button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Achievement
+            </Button>
           </div>
 
-          <div className="form-actions">
-            <button
+          <div className="pt-6 border-t-2 border-border">
+            <Button
               type="button"
-              className="btn-remove"
-              onClick={onRemove}
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRemove();
+              }}
+              className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               Remove Experience
-            </button>
+            </Button>
           </div>
         </div>
       )}
     </div>
   );
 }
-
