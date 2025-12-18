@@ -31,7 +31,7 @@
 .app-main {
   flex: 1;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
 }
@@ -223,7 +223,7 @@
 /* Two-Column Layout */
 .two-column-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 6fr 4fr;  /* 60/40 split - preview gets more space */
   gap: 2rem;
   align-items: start;
 }
