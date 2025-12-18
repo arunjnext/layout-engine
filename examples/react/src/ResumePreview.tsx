@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useResumeLayout } from './useResumeLayout';
-import type { Position } from '../../lib';
+import type { Position } from '@lib';
 
 interface ResumePreviewProps {
   experiences: Position[];
@@ -65,9 +65,14 @@ export function ResumePreview({ experiences }: ResumePreviewProps) {
     }
   });
 
-  // Add experiences when engine is ready
+  // Track if we've loaded the initial data to prevent re-render loops
+  const hasLoadedRef = useRef(false);
+
+  // Add experiences when engine is ready (ONLY ONCE)
   useEffect(() => {
-    if (!engine || !isReady) return;
+    if (!engine || !isReady || hasLoadedRef.current) return;
+
+    hasLoadedRef.current = true;
 
     (async () => {
       // Reset first to clear any existing content
@@ -78,7 +83,7 @@ export function ResumePreview({ experiences }: ResumePreviewProps) {
         await engine.addExperience(experience);
       }
     })();
-  }, [engine, isReady, experiences]);
+  }, [engine, isReady]);
 
   return (
     <div className="resume-preview">

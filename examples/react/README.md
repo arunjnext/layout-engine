@@ -1,32 +1,110 @@
 # React Example - Resume Layout Engine
 
-This example demonstrates how to use the Resume Layout Engine in a React application.
+This is a complete React + Vite demo application showcasing the **Resume Layout Engine** - a headless library for automatic resume page splitting with TypeScript support.
 
-## Files
+## Features
 
-- **`useResumeLayout.ts`** - Custom React hook for the layout engine
-- **`ResumePreview.tsx`** - Example component using the hook
-- **`App.tsx`** - Sample app (you need to create this)
+- 🎯 **Automatic Page Splitting** - Content automatically flows across multiple pages
+- 📊 **Real-time Stats** - Live page count and remaining space indicators
+- 🎨 **Beautiful UI** - A4-sized pages with professional styling
+- 🔄 **Live Reload** - Vite HMR for instant feedback during development
+- 📱 **Responsive** - Works on desktop and mobile devices
+- 🎭 **Headless** - Pure layout engine without UI opinions
+
+## Getting Started
+
+### Installation
+
+```bash
+# Install dependencies (using bun)
+bun install
+
+# Or using npm
+npm install
+
+# Or using yarn
+yarn install
+```
+
+### Development
+
+```bash
+# Start the development server
+bun run dev
+
+# Or
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+### Build
+
+```bash
+# Build for production
+bun run build
+
+# Or
+npm run build
+```
+
+### Preview Production Build
+
+```bash
+# Preview the production build
+bun run preview
+
+# Or
+npm run preview
+```
+
+## Project Structure
+
+```
+examples/react/
+├── src/
+│   ├── App.tsx              # Main application component
+│   ├── App.css              # Application styles
+│   ├── ResumePreview.tsx    # Resume preview component
+│   ├── useResumeLayout.ts   # Custom React hook for layout engine
+│   ├── sampleData.ts        # Sample resume data
+│   ├── main.tsx             # React entry point
+│   └── index.css            # Global styles
+├── index.html               # HTML template
+├── vite.config.ts           # Vite configuration
+├── package.json             # Dependencies
+└── README.md                # This file
+```
 
 ## Usage
 
-### 1. Basic Usage with Hook
+### Basic Usage with Hook
+
+The `useResumeLayout` hook provides a simple interface to the layout engine:
 
 ```tsx
 import { useResumeLayout } from './useResumeLayout';
 
-function MyResumeComponent() {
-  const { containerRef, engine, pageCount, remainingSpace } = useResumeLayout({
+function MyComponent() {
+  const { containerRef, engine, pageCount, remainingSpace, isReady } = useResumeLayout({
+    page: {
+      height: 1123,  // A4 at 96 DPI
+      marginTop: 20,
+      marginBottom: 20,
+      header: { height: 50 },
+      footer: { height: 30 }
+    },
     template: {
       style: {
         fontFamily: 'Arial, sans-serif',
-        fontSize: '12px'
+        fontSize: '12px',
+        lineHeight: 1.5
       }
     }
   });
 
   useEffect(() => {
-    if (!engine) return;
+    if (!engine || !isReady) return;
     
     (async () => {
       await engine.addExperience({
@@ -36,18 +114,20 @@ function MyResumeComponent() {
         description: ['Built APIs', 'Led team']
       });
     })();
-  }, [engine]);
+  }, [engine, isReady]);
 
   return (
     <div>
-      <div>Pages: {pageCount} | Remaining: {remainingSpace}px</div>
+      <div>Pages: {pageCount} | Space: {remainingSpace}px</div>
       <div ref={containerRef} />
     </div>
   );
 }
 ```
 
-### 2. Using the ResumePreview Component
+### Using the ResumePreview Component
+
+For a ready-to-use solution, use the `ResumePreview` component:
 
 ```tsx
 import { ResumePreview } from './ResumePreview';
@@ -56,16 +136,11 @@ function App() {
   const experiences = [
     {
       _id: 'work-1',
-      title: 'Software Engineer',
+      title: 'Senior Software Engineer',
       company: 'Tech Corp',
-      startDate: '2020-01',
-      endDate: '2023-12',
-      intro: 'Led development of scalable systems',
-      description: [
-        'Built REST API serving 1M+ requests/day',
-        'Improved performance by 50%',
-        'Led team of 5 developers'
-      ]
+      startDate: '2021-01',
+      endDate: '2024-12',
+      description: ['Led API development', 'Mentored junior developers']
     }
   ];
 
@@ -73,57 +148,118 @@ function App() {
 }
 ```
 
-## Key Features
+## Key Components
 
-- **Automatic cleanup** - The hook automatically destroys the engine on unmount
-- **State management** - Tracks page count and remaining space
-- **Event handling** - Supports all engine events
-- **Type-safe** - Full TypeScript support
+### useResumeLayout Hook
 
-## Styling
+A custom React hook that wraps the `ResumeLayoutEngine`:
 
-Add CSS for the resume pages:
+- Manages containerRef and engine instance
+- Provides reactive state (pageCount, remainingSpace, isReady)
+- Auto cleanup on component unmount
+- Memoized helper methods
 
-```css
-.resume-container {
-  max-width: 210mm;
-  margin: 0 auto;
+### ResumePreview Component
+
+A complete preview component that:
+
+- Uses the `useResumeLayout` hook
+- Displays stats panel with page count and remaining space
+- Renders resume pages with automatic splitting
+- Handles adding experiences when engine is ready
+
+## Configuration
+
+### Page Configuration
+
+```typescript
+{
+  height: 1123,        // A4 at 96 DPI
+  marginTop: 20,
+  marginBottom: 20,
+  header: { height: 50 },
+  footer: { height: 30 }
 }
-
-.resume-page {
-  width: 210mm;
-  min-height: 297mm;
-  padding: 20mm;
-  margin: 0 auto 20px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.resume-stats {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #333;
-  color: white;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.stat {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.stat-value.low { color: #ff6b6b; }
-.stat-value.medium { color: #ffd93d; }
-.stat-value.high { color: #6bcf7f; }
 ```
 
-## Notes
+### Template Configuration
 
-- The hook creates the engine only once (on mount)
-- Use the `reset()` method to clear all content
-- The engine is automatically destroyed when the component unmounts
-- All helper methods (`addExperience`, `addEducation`, etc.) are memoized
+```typescript
+{
+  style: {
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '12px',
+    lineHeight: 1.5,
+    spaces: {
+      work: {
+        marginTop: 10,
+        marginBottom: 0,
+        intro: { marginTop: 5 },
+        statements: {
+          list: { marginTop: 5 },
+          item: { marginTop: 3 }
+        }
+      }
+    }
+  }
+}
+```
 
+## Event Callbacks
+
+The engine supports various event callbacks:
+
+```typescript
+{
+  events: {
+    onPageCreated: (pageIndex, pageElement) => {
+      console.log(`Page ${pageIndex + 1} created`);
+    },
+    onContentPlaced: (result) => {
+      console.log('Content placed:', result);
+    },
+    onOverflow: (contentType, required, available) => {
+      console.warn(`Overflow detected`);
+    },
+    onError: (error) => {
+      console.error('Error:', error);
+    }
+  }
+}
+```
+
+## API Methods
+
+The hook provides these helper methods:
+
+- `addExperience(position)` - Add work experience
+- `addEducation(education)` - Add education entry
+- `addSkills(skills)` - Add skills section
+- `reset()` - Clear all content
+
+## Learn More
+
+- [API Documentation](../../docs/API.md)
+- [Architecture](../../docs/ARCHITECTURE.md)
+- [More Examples](../../docs/EXAMPLES.md)
+
+## Technology Stack
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Resume Layout Engine** - Headless page splitting library
+
+## Browser Support
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

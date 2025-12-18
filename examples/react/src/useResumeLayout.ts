@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { ResumeLayoutEngine, type LayoutEngineConfig, type Position, type Education, type Skill } from '../../lib';
+import { ResumeLayoutEngine, type LayoutEngineConfig, type Position, type Education, type Skill } from '@lib';
 
 /**
  * Custom React hook for Resume Layout Engine
@@ -42,29 +42,33 @@ export function useResumeLayout(config: Omit<LayoutEngineConfig, 'container'>) {
   const [remainingSpace, setRemainingSpace] = useState(0);
   const [isReady, setIsReady] = useState(false);
 
+  // Store config in a ref to avoid dependency issues
+  const configRef = useRef(config);
+  configRef.current = config;
+
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Create engine
+    // Create engine with wrapped callbacks to avoid circular dependencies
     const engine = new ResumeLayoutEngine({
-      ...config,
+      ...configRef.current,
       container: containerRef.current,
       events: {
-        ...config.events,
+        ...configRef.current.events,
         onPageCreated: (pageIndex, pageElement) => {
-          setPageCount(engine.getPageCount());
-          config.events?.onPageCreated?.(pageIndex, pageElement);
+          setPageCount(engineRef.current?.getPageCount() || 0);
+          configRef.current.events?.onPageCreated?.(pageIndex, pageElement);
         },
         onContentPlaced: (result) => {
           setRemainingSpace(result.remainingSpace);
           setPageCount(result.pageCount || 0);
-          config.events?.onContentPlaced?.(result);
+          configRef.current.events?.onContentPlaced?.(result);
         },
         onOverflow: (contentType, required, available) => {
-          config.events?.onOverflow?.(contentType, required, available);
+          configRef.current.events?.onOverflow?.(contentType, required, available);
         },
         onError: (error) => {
-          config.events?.onError?.(error);
+          configRef.current.events?.onError?.(error);
         }
       }
     });
