@@ -65,25 +65,31 @@ export function ResumePreview({ experiences }: ResumePreviewProps) {
     }
   });
 
-  // Track if we've loaded the initial data to prevent re-render loops
-  const hasLoadedRef = useRef(false);
+  // Track previous experiences to detect changes
+  const prevExperiencesRef = useRef<Position[]>([]);
 
-  // Add experiences when engine is ready (ONLY ONCE)
+  // Add/update experiences when they change
   useEffect(() => {
-    if (!engine || !isReady || hasLoadedRef.current) return;
+    if (!engine || !isReady) return;
 
-    hasLoadedRef.current = true;
+    // Check if experiences have changed
+    const experiencesChanged = 
+      JSON.stringify(prevExperiencesRef.current) !== JSON.stringify(experiences);
 
-    (async () => {
-      // Reset first to clear any existing content
-      engine.reset();
-      
-      // Add all experiences
-      for (const experience of experiences) {
-        await engine.addExperience(experience);
-      }
-    })();
-  }, [engine, isReady]);
+    if (experiencesChanged) {
+      prevExperiencesRef.current = experiences;
+
+      (async () => {
+        // Reset first to clear any existing content
+        engine.reset();
+        
+        // Add all experiences
+        for (const experience of experiences) {
+          await engine.addExperience(experience);
+        }
+      })();
+    }
+  }, [engine, isReady, experiences]);
 
   return (
     <div className="resume-preview">

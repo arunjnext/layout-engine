@@ -220,17 +220,505 @@
   }
 }
 
+/* Two-Column Layout */
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.preview-column {
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+.form-column {
+  min-height: 100vh;
+}
+
+.column-header {
+  margin-bottom: 1.5rem;
+}
+
+.column-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  color: #2c3e50;
+}
+
+.column-description {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.preview-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Experience Manager */
+.experience-manager {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.manager-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.experience-count {
+  display: inline-block;
+  margin-left: 1rem;
+  padding: 0.25rem 0.75rem;
+  background: #667eea;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.manager-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Experience Card */
+.experience-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.experience-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.experience-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  background: #fff;
+  transition: background 0.2s ease;
+}
+
+.experience-card-header:hover {
+  background: #f8f9fa;
+}
+
+.experience-card-title h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.125rem;
+  color: #2c3e50;
+}
+
+.experience-card-company {
+  font-size: 0.875rem;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.experience-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.validation-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.validation-badge.valid {
+  background: #6bcf7f;
+  color: white;
+}
+
+.validation-badge.invalid {
+  background: #ff6b6b;
+  color: white;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.btn-icon:hover {
+  color: #667eea;
+}
+
+.experience-card-content {
+  padding: 1.5rem 1.25rem;
+  border-top: 2px solid #e9ecef;
+}
+
+/* Form Styles */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.required {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+.optional {
+  color: #999;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input.error,
+.form-group textarea.error {
+  border-color: #ff6b6b;
+}
+
+.form-group input.error:focus,
+.form-group textarea.error:focus {
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* Description Bullets */
+.description-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.bullet-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.bullet-item textarea {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.bullet-item textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-remove-bullet {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-bullet:hover {
+  background: #ff5252;
+  transform: scale(1.05);
+}
+
+.btn-add-bullet {
+  background: #f8f9fa;
+  color: #667eea;
+  border: 2px dashed #667eea;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-add-bullet:hover {
+  background: #667eea;
+  color: white;
+  border-style: solid;
+}
+
+/* Form Actions */
+.form-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e9ecef;
+}
+
+.btn-remove {
+  background: #fff;
+  color: #ff6b6b;
+  border: 2px solid #ff6b6b;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+  background: #ff6b6b;
+  color: white;
+}
+
+/* Experience List */
+.experiences-list {
+  margin-bottom: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #666;
+}
+
+.empty-state p {
+  margin: 0.5rem 0;
+}
+
+.empty-state-hint {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+/* Add Experience Button */
+.btn-add-experience {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add-experience:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-add-experience:active {
+  transform: translateY(0);
+}
+
+/* Secondary Buttons */
+.btn-secondary {
+  background: #f8f9fa;
+  color: #667eea;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+}
+
+.btn-secondary.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Manager Info */
+.manager-info {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f0f4ff;
+  border-left: 4px solid #667eea;
+  border-radius: 4px;
+}
+
+.info-text {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.info-text strong {
+  color: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-column {
+    position: relative;
+    top: 0;
+    max-height: none;
+    order: 2;
+  }
+
+  .form-column {
+    order: 1;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 1rem;
+  }
+
+  .two-column-layout {
+    gap: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .manager-title {
+    width: 100%;
+  }
+
+  .manager-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .experience-manager {
+    padding: 1.5rem;
+  }
+
+  .preview-wrapper {
+    padding: 1rem;
+  }
+}
+
 /* Print Styles */
 @media print {
   .app-header,
   .app-footer,
-  .resume-stats {
+  .resume-stats,
+  .form-column {
     display: none;
   }
 
   .app-main {
     padding: 0;
     max-width: 100%;
+  }
+
+  .two-column-layout {
+    display: block;
+  }
+
+  .preview-column {
+    position: static;
+    max-height: none;
+  }
+
+  .preview-wrapper {
+    padding: 0;
+    box-shadow: none;
   }
 
   .resume-page {
