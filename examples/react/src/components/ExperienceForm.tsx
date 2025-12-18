@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Position } from "@lib";
+import type { Position } from "resume-layout-engine";
 import { ChevronDown, ChevronRight, Plus, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";

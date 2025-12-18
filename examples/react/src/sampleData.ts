@@ -1,4 +1,4 @@
-import type { Position } from '@lib';
+import type { Position } from 'resume-layout-engine';
 
 /**
  * Sample work experiences for demonstrating the resume layout engine

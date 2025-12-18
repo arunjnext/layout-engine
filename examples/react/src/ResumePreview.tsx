@@ -1,8 +1,8 @@
-import type { Position } from "@lib";
 import { useEffect, useRef } from "react";
-import { useResumeLayout } from "./useResumeLayout";
-import { Card, CardContent } from "./components/ui/card";
+import type { Position } from "resume-layout-engine";
 import { Badge } from "./components/ui/badge";
+import { Card, CardContent } from "./components/ui/card";
+import { useResumeLayout } from "./useResumeLayout";
 
 interface ResumePreviewProps {
   experiences: Position[];
@@ -108,10 +108,12 @@ export function ResumePreview({ experiences }: ResumePreviewProps) {
               <p className="text-3xl font-bold">{pageCount}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-semibold opacity-90">Remaining Space</p>
+              <p className="text-sm font-semibold opacity-90">
+                Remaining Space
+              </p>
               <div className="flex items-center gap-2">
                 <p className="text-3xl font-bold">{remainingSpace}px</p>
-                <Badge 
+                <Badge
                   variant={getRemainingSpaceBadgeVariant(remainingSpace)}
                   className={getRemainingSpaceBadgeClass(remainingSpace)}
                 >
@@ -126,8 +128,8 @@ export function ResumePreview({ experiences }: ResumePreviewProps) {
       {/* Resume Container */}
       <Card className="shadow-lg overflow-hidden">
         <CardContent className="p-6 bg-linear-to-br from-gray-50 to-gray-100">
-          <div 
-            ref={containerRef} 
+          <div
+            ref={containerRef}
             className="resume-container max-w-[210mm] mx-auto"
           />
         </CardContent>
@@ -142,7 +144,9 @@ function getRemainingSpaceLabel(space: number): string {
   return "High";
 }
 
-function getRemainingSpaceBadgeVariant(space: number): "default" | "secondary" | "destructive" {
+function getRemainingSpaceBadgeVariant(
+  space: number
+): "default" | "secondary" | "destructive" {
   if (space < 100) return "destructive";
   if (space < 300) return "secondary";
   return "default";

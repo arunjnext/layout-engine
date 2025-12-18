@@ -19,8 +19,6 @@
     /* Path Mapping */
     "baseUrl": ".",
     "paths": {
-      "@lib": ["../../lib/index.ts"],
-      "@lib/*": ["../../lib/*"],
       "@/*": ["src/*"]
     },
 

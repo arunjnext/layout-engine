@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ExperienceForm } from './ExperienceForm';
-import type { Position } from '@lib';
+import type { Position } from 'resume-layout-engine';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';

@@ -1,4 +1,4 @@
-import { ResumeLayoutEngine, type Education, type LayoutEngineConfig, type Position, type Skill } from '@lib';
+import { ResumeLayoutEngine, type Education, type LayoutEngineConfig, type Position, type Skill } from 'resume-layout-engine';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**

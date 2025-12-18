@@ -1,4 +1,4 @@
-import type { Position } from "@lib";
+import type { Position } from "resume-layout-engine";
 import { useState } from "react";
 import { ResumePreview } from "./ResumePreview";
 import { ExperienceManager } from "./components/ExperienceManager";
