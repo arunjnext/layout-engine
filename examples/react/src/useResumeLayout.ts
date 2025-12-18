@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { ResumeLayoutEngine, type LayoutEngineConfig, type Position, type Education, type Skill } from '@lib';
+import { ResumeLayoutEngine, type Education, type LayoutEngineConfig, type Position, type Skill } from '@lib';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * Custom React hook for Resume Layout Engine
@@ -38,19 +38,24 @@ import { ResumeLayoutEngine, type LayoutEngineConfig, type Position, type Educat
 export function useResumeLayout(config: Omit<LayoutEngineConfig, 'container'>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<ResumeLayoutEngine | null>(null);
+  const [engine, setEngine] = useState<ResumeLayoutEngine | null>(null);
   const [pageCount, setPageCount] = useState(0);
   const [remainingSpace, setRemainingSpace] = useState(0);
   const [isReady, setIsReady] = useState(false);
 
-  // Store config in a ref to avoid dependency issues
+  // Store config and callbacks in ref to avoid recreating engine on every render
   const configRef = useRef(config);
-  configRef.current = config;
+  
+  // Update config ref in effect to avoid updating during render
+  useEffect(() => {
+    configRef.current = config;
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     // Create engine with wrapped callbacks to avoid circular dependencies
-    const engine = new ResumeLayoutEngine({
+    const newEngine = new ResumeLayoutEngine({
       ...configRef.current,
       container: containerRef.current,
       events: {
@@ -73,15 +78,17 @@ export function useResumeLayout(config: Omit<LayoutEngineConfig, 'container'>) {
       }
     });
 
-    engineRef.current = engine;
+    engineRef.current = newEngine;
+    setEngine(newEngine);
     setIsReady(true);
-    setPageCount(engine.getPageCount());
-    setRemainingSpace(engine.getRemainingSpace());
+    setPageCount(newEngine.getPageCount());
+    setRemainingSpace(newEngine.getRemainingSpace());
 
     // Cleanup on unmount
     return () => {
-      engine.destroy();
+      newEngine.destroy();
       engineRef.current = null;
+      setEngine(null);
       setIsReady(false);
     };
   }, []); // Empty deps - only create once
@@ -111,7 +118,7 @@ export function useResumeLayout(config: Omit<LayoutEngineConfig, 'container'>) {
 
   return {
     containerRef,
-    engine: engineRef.current,
+    engine,
     isReady,
     pageCount,
     remainingSpace,
