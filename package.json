@@ -1,15 +1,49 @@
 {
-  "name": "page-spliter",
-  "private": true,
-  "version": "0.0.0",
+  "name": "resume-layout-engine",
+  "version": "1.0.0",
+  "description": "Headless library for automatic resume page splitting with TypeScript support",
   "type": "module",
+  "main": "./lib/index.ts",
+  "types": "./lib/index.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.ts",
+      "types": "./lib/index.ts"
+    }
+  },
+  "files": [
+    "lib"
+  ],
+  "keywords": [
+    "resume",
+    "layout",
+    "page-splitting",
+    "headless",
+    "typescript",
+    "pdf",
+    "a4"
+  ],
+  "author": "",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "dev:vanilla": "vite --config examples/vanilla/vite.config.ts",
+    "build": "tsc",
+    "build:lib": "tsc --project tsconfig.lib.json",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "typescript": "~5.9.3",
     "vite": "^7.2.4"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   }
 }

@@ -161,6 +161,7 @@ async function initApp() {
       'Improved performance by 50%',
       'Led team of 5 developers',
       'Built REST API serving 1M+ requests/day',
+      
     ]
   };
 
@@ -207,9 +208,6 @@ async function initApp() {
   await editor.onExperienceAdded(wor2);
   await editor.onExperienceAdded(wor11);
   await editor.onExperienceAdded(wor10);
-  await editor.onExperienceAdded(wor9);
-  await editor.onExperienceAdded(wor8);
-
 
   return editor;
 }

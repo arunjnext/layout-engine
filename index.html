@@ -4,82 +4,88 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>page-spliter</title>
+    <title>Resume Layout Engine - Redirecting...</title>
     <style>
       body {
         margin: 0;
-        padding: 20px;
+        padding: 40px;
         font-family: Arial, sans-serif;
         background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
       }
-      
-      #resume-pages-container {
-        max-width: 210mm;
-        margin: 0 auto;
-        background: #f5f5f5;
-      }
-      
-      .resume-page {
-        width: 210mm;
-        min-height: 297mm;
-        padding: 20mm;
-        margin: 0 auto 20px;
+
+      .redirect-message {
+        max-width: 600px;
         background: white;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        page-break-after: always;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
       }
-      
-      .resume-page:last-child {
-        margin-bottom: 0;
+
+      h1 {
+        margin: 0 0 20px 0;
+        color: #333;
       }
-      
-      #resume-content-area {
-        min-height: 297mm;
-        padding: 20mm;
-        background: white;
+
+      p {
+        margin: 0 0 20px 0;
+        color: #666;
+        line-height: 1.6;
       }
-      
-      #remaining-space-display {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: #333;
+
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background: #007bff;
         color: white;
-        padding: 10px 15px;
-        border-radius: 5px;
-        font-size: 14px;
-        z-index: 1000;
-      }
-      
-      .resume-position {
-        margin-bottom: 20px;
-      }
-      
-      .position-title-section {
-        font-size: 16px;
+        text-decoration: none;
+        border-radius: 4px;
         font-weight: bold;
-        margin-bottom: 5px;
+        transition: background 0.2s;
       }
-      
-      .position-intro {
-        margin-top: 5px;
-        margin-bottom: 10px;
-        font-style: italic;
+
+      .button:hover {
+        background: #0056b3;
       }
-      
-      .position-statements {
-        margin-top: 10px;
-        padding-left: 20px;
-      }
-      
-      .position-statement {
-        margin-bottom: 5px;
+
+      .note {
+        margin-top: 30px;
+        padding: 15px;
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        text-align: left;
+        font-size: 14px;
       }
     </style>
   </head>
   <body>
-    <div id="remaining-space-display">Remaining space: --</div>
-    <div id="resume-pages-container"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <div class="redirect-message">
+      <h1>🚀 Project Restructured!</h1>
+      <p>
+        This project has been restructured into a proper <strong>headless library</strong>.
+        The old demo has been moved to the examples folder.
+      </p>
+      <p>
+        <a href="/examples/vanilla/" class="button">View Vanilla JS Example</a>
+      </p>
+      <div class="note">
+        <strong>📚 Documentation:</strong><br>
+        • <a href="/README.md">README</a><br>
+        • <a href="/docs/API.md">API Reference</a><br>
+        • <a href="/docs/EXAMPLES.md">Examples</a><br>
+        • <a href="/MIGRATION.md">Migration Guide</a>
+      </div>
+    </div>
+
+    <script>
+      // Auto-redirect after 3 seconds
+      setTimeout(() => {
+        window.location.href = '/examples/vanilla/';
+      }, 3000);
+    </script>
   </body>
 </html>
