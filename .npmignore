@@ -1,0 +1,36 @@
+# Source files
+src/
+lib/
+
+# Examples and docs
+examples/
+docs/
+
+# Config files
+*.config.js
+*.config.ts
+tsconfig.json
+tsconfig.lib.json
+tsconfig.app.json
+tsconfig.node.json
+
+# Development
+node_modules/
+.vscode/
+.idea/
+*.log
+bun.lock
+
+# Build artifacts not needed
+index.html
+vite.config.ts
+
+# Other
+.git/
+.DS_Store
+*.md
+!README.md
+BUGFIX.md
+CHANGELOG.md
+MIGRATION.md
+

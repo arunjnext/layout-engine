@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "description": "Headless library for automatic resume page splitting with TypeScript support",
   "type": "module",
-  "main": "./lib/index.ts",
-  "types": "./lib/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./lib/index.ts",
-      "types": "./lib/index.ts"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
-    "lib"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "resume",
@@ -23,13 +25,22 @@
     "pdf",
     "a4"
   ],
-  "author": "",
+  "author": "arunjnext",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arunjnext/layout-engine.git"
+  },
+  "homepage": "https://github.com/arunjnext/layout-engine#readme",
+  "bugs": {
+    "url": "https://github.com/arunjnext/layout-engine/issues"
+  },
   "scripts": {
     "dev": "vite",
     "dev:vanilla": "vite --config examples/vanilla/vite.config.ts",
     "build": "tsc",
     "build:lib": "tsc --project tsconfig.lib.json",
+    "prepublishOnly": "npm run build:lib",
     "preview": "vite preview"
   },
   "devDependencies": {

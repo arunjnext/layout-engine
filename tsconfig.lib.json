@@ -5,7 +5,11 @@
     "rootDir": "./lib",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false,
+    "moduleResolution": "node"
   },
   "include": ["lib/**/*"],
   "exclude": ["node_modules", "examples", "src"]

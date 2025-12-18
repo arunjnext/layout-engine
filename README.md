@@ -15,17 +15,21 @@ A **headless, framework-agnostic** TypeScript library for automatic resume page 
 
 ## 📦 Installation
 
-### Option 1: Copy Source Code (Recommended for now)
-
-```bash
-# Copy the lib/ folder into your project
-cp -r lib/ your-project/src/lib/
-```
-
-### Option 2: NPM (Coming Soon)
-
 ```bash
 npm install resume-layout-engine
+```
+
+Or using other package managers:
+
+```bash
+# Yarn
+yarn add resume-layout-engine
+
+# pnpm
+pnpm add resume-layout-engine
+
+# Bun
+bun add resume-layout-engine
 ```
 
 ## 🚀 Quick Start
@@ -33,7 +37,7 @@ npm install resume-layout-engine
 ### Vanilla JavaScript/TypeScript
 
 ```typescript
-import { ResumeLayoutEngine } from "./lib";
+import { ResumeLayoutEngine } from "resume-layout-engine";
 
 const engine = new ResumeLayoutEngine({
   container: "#resume-container",
@@ -65,7 +69,7 @@ console.log(`Remaining space: ${engine.getRemainingSpace()}px`);
 ### React
 
 ```tsx
-import { useResumeLayout } from "./examples/react/useResumeLayout";
+import { ResumeLayoutEngine } from "resume-layout-engine";
 
 function ResumePreview({ experiences }) {
   const { containerRef, engine, pageCount, remainingSpace } = useResumeLayout({
