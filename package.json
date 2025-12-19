@@ -1,6 +1,6 @@
 {
   "name": "resume-layout-engine",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Headless library for automatic resume page splitting with TypeScript support",
   "type": "module",
   "main": "./dist/index.js",
