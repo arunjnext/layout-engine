@@ -1,9 +1,10 @@
 import { ComponentFactory } from '../services/ComponentFactory';
 import { MeasurementService } from '../services/MeasurementService';
-import type { ComponentMeasurement, EventCallbacks, PlacementResult, TemplateConfig } from '../types';
+import type { ComponentMeasurement, EventCallbacks, PlacementResult, TemplateConfig, SplitGuidelines } from '../types';
 import type { PageConfig } from '../types/measurement';
 import type { Education, Position, Skill } from '../types/resume';
 import { SpaceCalculator } from '../utils/SpaceCalculator';
+import { SplitterFactory } from '../splitters/SplitterFactory';
 
 /**
  * Internal Layout Engine - Handles component → measurement → placement
@@ -21,12 +22,15 @@ export class LayoutEngine {
   private placedComponents: Map<string, HTMLElement> = new Map();
   private pageCalculators: Map<number, SpaceCalculator> = new Map();
   private eventCallbacks?: EventCallbacks;
+  private splitterFactory: SplitterFactory;
+  private splitGuidelines?: SplitGuidelines;
   
   constructor(
     pagesContainer: HTMLElement,
     pageConfig: PageConfig,
     templateConfig: TemplateConfig,
-    eventCallbacks?: EventCallbacks
+    eventCallbacks?: EventCallbacks,
+    splitGuidelines?: SplitGuidelines
   ) {
     this.componentFactory = new ComponentFactory();
     this.measurementService = new MeasurementService();
@@ -34,6 +38,10 @@ export class LayoutEngine {
     this.pageConfig = pageConfig;
     this.templateConfig = templateConfig;
     this.eventCallbacks = eventCallbacks;
+    this.splitGuidelines = splitGuidelines;
+    
+    // Create splitter factory with guidelines
+    this.splitterFactory = new SplitterFactory(splitGuidelines);
     
     // Create initial space calculator
     this.spaceCalculator = new SpaceCalculator(pageConfig);
@@ -85,7 +93,8 @@ export class LayoutEngine {
     const margins = this.getMargins('experience');
 
     // Use the measured component (which has styles applied) instead of the original
-    return await this.placeContent(measurement.component, measurement, margins, 'experience', position._id);
+    // Pass original position for smart splitting
+    return await this.placeContent(measurement.component, measurement, margins, 'experience', position._id, position);
   }
   
   /**
@@ -97,7 +106,8 @@ export class LayoutEngine {
     const margins = this.getMargins('education');
 
     // Use the measured component (which has styles applied) instead of the original
-    return await this.placeContent(measurement.component, measurement, margins, 'education', education._id);
+    // Pass original education as position for smart splitting (education uses same structure)
+    return await this.placeContent(measurement.component, measurement, margins, 'education', education._id, education as any);
   }
   
   /**
@@ -120,7 +130,8 @@ export class LayoutEngine {
     measurement: ComponentMeasurement,
     margins: { top?: number; bottom?: number },
     contentType: string,
-    contentId: string
+    contentId: string,
+    originalPosition?: Position | Education
   ): Promise<PlacementResult> {
     // Ensure we're using the correct page's calculator
     const currentPageCalculator = this.pageCalculators.get(this.currentPageIndex);
@@ -135,7 +146,151 @@ export class LayoutEngine {
     if (requiredSpace <= remainingSpace) {
       return await this.placeComponentOnCurrentPage(component, measurement, margins, contentType, contentId);
     } else {
+      // Try smart splitting first (for experience/education)
+      if ((contentType === 'experience' || contentType === 'education') && originalPosition) {
+        const splitResult = await this.trySmartSplit(
+          originalPosition as Position,
+          measurement,
+          margins,
+          contentType,
+          contentId,
+          remainingSpace
+        );
+        
+        if (splitResult) {
+          return splitResult;
+        }
+      }
+      
+      // Fallback to whole block move
       return await this.handleOverflow(component, measurement, margins, contentType, contentId, remainingSpace);
+    }
+  }
+  
+  /**
+   * Try smart splitting before moving entire block
+   */
+  private async trySmartSplit(
+    position: Position | Education,
+    _measurement: ComponentMeasurement,
+    margins: { top?: number; bottom?: number },
+    contentType: string,
+    contentId: string,
+    availableSpace: number
+  ): Promise<PlacementResult | null> {
+    try {
+      // Convert Education to Position format for splitting
+      let positionForSplit: Position;
+      if ('degree' in position) {
+        // It's an Education, convert to Position format
+        positionForSplit = {
+          _id: position._id,
+          title: position.degree,
+          company: position.institution,
+          endDate: position.year,
+          description: position.description || []
+        };
+      } else {
+        positionForSplit = position;
+      }
+      
+      const splitResult = await this.splitterFactory.split({
+        contentType,
+        content: positionForSplit,
+        availableSpace,
+        templateConfig: this.templateConfig,
+        splitGuidelines: this.splitGuidelines,
+        margins
+      });
+      
+      if (!splitResult.wasSplit) {
+        // Splitter decided not to split - use normal overflow handling
+        return null;
+      }
+      
+      // Handle split result
+      if (splitResult.currentPageContent) {
+        // Convert back to Education format if needed
+        let partialContent: Position | Education;
+        let continuationContent: Position | Education | null = null;
+        
+        if (contentType === 'education' && 'degree' in position) {
+          // Convert Position back to Education format
+          const partialPos = splitResult.currentPageContent;
+          partialContent = {
+            _id: position._id,
+            degree: partialPos.title,
+            institution: partialPos.company,
+            year: partialPos.endDate,
+            description: partialPos.description
+          };
+          
+          if (splitResult.nextPageContent) {
+            const contPos = splitResult.nextPageContent;
+            continuationContent = {
+              _id: position._id,
+              degree: contPos.title,
+              institution: contPos.company,
+              year: contPos.endDate,
+              description: contPos.description
+            };
+          }
+        } else {
+          partialContent = splitResult.currentPageContent;
+          continuationContent = splitResult.nextPageContent;
+        }
+        
+        // Place partial content on current page
+        const partialComponent = contentType === 'education' && 'degree' in partialContent
+          ? this.componentFactory.createEducationComponent(partialContent as Education)
+          : this.componentFactory.createPositionComponent(partialContent as Position);
+        const partialMeasurement = this.measurementService.measureComponent(partialComponent, this.templateConfig);
+        
+        const currentPageResult = await this.placeComponentOnCurrentPage(
+          partialMeasurement.component,
+          partialMeasurement,
+          margins,
+          contentType,
+          `${contentId}-partial`
+        );
+        
+        // Now handle next page content
+        if (continuationContent) {
+          // Create new page
+          this.createNewPage();
+          
+          // Place continuation on new page
+          const continuationComponent = contentType === 'education' && 'degree' in continuationContent
+            ? this.componentFactory.createEducationComponent(continuationContent as Education)
+            : this.componentFactory.createPositionComponent(continuationContent as Position);
+          const continuationMeasurement = this.measurementService.measureComponent(continuationComponent, this.templateConfig);
+          
+          const nextPageResult = await this.placeComponentOnCurrentPage(
+            continuationMeasurement.component,
+            continuationMeasurement,
+            margins,
+            contentType,
+            `${contentId}-continuation`
+          );
+          
+          // Return combined result
+          return {
+            ...nextPageResult,
+            split: true,
+            usedHeight: currentPageResult.usedHeight || 0
+          };
+        }
+        
+        return {
+          ...currentPageResult,
+          split: true
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('Smart split failed, falling back to whole block move:', error);
+      return null;
     }
   }
 

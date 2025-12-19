@@ -10,6 +10,17 @@ export interface Position {
   endDate?: string;
   intro?: string;
   description: string[];
+  /** Internal: Indicates this is a partial/split position */
+  _isPartial?: boolean;
+  /** Internal: Indicates this is a continuation of a split position */
+  _splitContinuation?: boolean;
+  /** Internal: Split indexes for tracking split boundaries */
+  _splitIndexes?: {
+    introLineStartIndex?: number;
+    introLineEndIndex?: number;
+    statementsStartIndex?: number;
+    statementsEndIndex?: number;
+  };
 }
 
 export interface Skill {
@@ -24,6 +35,15 @@ export interface Education {
   institution: string;
   year?: string;
   description?: string[];
+  /** Internal: Indicates this is a partial/split education entry */
+  _isPartial?: boolean;
+  /** Internal: Indicates this is a continuation of a split education entry */
+  _splitContinuation?: boolean;
+  /** Internal: Split indexes for tracking split boundaries */
+  _splitIndexes?: {
+    statementsStartIndex?: number;
+    statementsEndIndex?: number;
+  };
 }
 
 export interface ResumeData {

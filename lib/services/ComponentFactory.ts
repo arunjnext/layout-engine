@@ -12,6 +12,14 @@ export class ComponentFactory {
     container.className = 'resume-position';
     container.dataset.positionId = position._id;
     
+    // Mark as split if applicable
+    if (position._isPartial) {
+      container.dataset.isPartial = 'true';
+    }
+    if (position._splitContinuation) {
+      container.dataset.splitContinuation = 'true';
+    }
+    
     // Title section
     const titleSection = document.createElement('div');
     titleSection.className = 'position-title-section';
@@ -38,8 +46,8 @@ export class ComponentFactory {
     
     container.appendChild(titleSection);
     
-    // Intro section
-    if (position.intro) {
+    // Intro section (only if present and not continuation)
+    if (position.intro && !position._splitContinuation) {
       const intro = document.createElement('div');
       intro.className = 'position-intro';
       intro.textContent = position.intro;
@@ -51,11 +59,14 @@ export class ComponentFactory {
       const statementsList = document.createElement('ul');
       statementsList.className = 'position-statements';
       
+      // Calculate starting index for continuation
+      const startIndex = position._splitIndexes?.statementsStartIndex || 0;
+      
       position.description.forEach((statement, index) => {
         const li = document.createElement('li');
         li.className = 'position-statement';
         li.textContent = statement;
-        li.dataset.statementIndex = index.toString();
+        li.dataset.statementIndex = (startIndex + index).toString();
         statementsList.appendChild(li);
       });
       
@@ -73,6 +84,14 @@ export class ComponentFactory {
     container.className = 'resume-education';
     container.dataset.educationId = education._id;
     
+    // Mark as split if applicable
+    if (education._isPartial) {
+      container.dataset.isPartial = 'true';
+    }
+    if (education._splitContinuation) {
+      container.dataset.splitContinuation = 'true';
+    }
+    
     const degree = document.createElement('h3');
     degree.className = 'education-degree';
     degree.textContent = education.degree;
@@ -89,9 +108,14 @@ export class ComponentFactory {
     if (education.description && education.description.length > 0) {
       const descriptionList = document.createElement('ul');
       descriptionList.className = 'education-description';
-      education.description.forEach(desc => {
+      
+      // Calculate starting index for continuation
+      const startIndex = education._splitIndexes?.statementsStartIndex || 0;
+      
+      education.description.forEach((desc, index) => {
         const li = document.createElement('li');
         li.textContent = desc;
+        li.dataset.statementIndex = (startIndex + index).toString();
         descriptionList.appendChild(li);
       });
       container.appendChild(descriptionList);

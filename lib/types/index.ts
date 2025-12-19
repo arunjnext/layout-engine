@@ -13,6 +13,7 @@ export type {
   EventCallbacks,
   RenderingOptions,
   PlacementResult,
+  SplitGuidelines,
 } from './config';
 
 // Resume data types

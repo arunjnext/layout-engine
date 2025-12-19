@@ -38,8 +38,11 @@
   "scripts": {
     "dev": "vite",
     "dev:vanilla": "vite --config examples/vanilla/vite.config.ts",
+    "dev:test": "vite --config test/vite.config.ts",
+    "test": "npm run build:lib && npm run dev:test",
     "build": "tsc",
     "build:lib": "tsc --project tsconfig.lib.json",
+    "build:watch": "tsc --project tsconfig.lib.json --watch",
     "prepublishOnly": "npm run build:lib",
     "preview": "vite preview"
   },

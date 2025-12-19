@@ -62,7 +62,8 @@ export class ResumeLayoutEngine {
       container,
       pageConfig,
       templateConfig,
-      config.events
+      config.events,
+      config.splitGuidelines
     );
   }
 

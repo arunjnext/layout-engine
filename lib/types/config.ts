@@ -20,6 +20,9 @@ export interface LayoutEngineConfig {
   
   /** Rendering options */
   rendering?: RenderingOptions;
+  
+  /** Smart splitting guidelines */
+  splitGuidelines?: SplitGuidelines;
 }
 
 /**
@@ -135,6 +138,26 @@ export interface RenderingOptions {
   
   /** Measurement mode - 'accurate' uses hidden container, 'fast' estimates (default: 'accurate') */
   measurementMode?: 'accurate' | 'fast';
+}
+
+/**
+ * Guidelines for smart splitting behavior
+ */
+export interface SplitGuidelines {
+  /** Minimum percentage of content that must fit to attempt split (default: 0.3 = 30%) */
+  minSplitPercentage?: number;
+  
+  /** Minimum space needed in pixels to attempt split (default: 100px) */
+  minRemainingSpace?: number;
+  
+  /** Prefer splitting at statement boundaries (default: true) */
+  preferStatementSplits?: boolean;
+  
+  /** Always keep title with some content (default: true) */
+  keepTitleWithContent?: boolean;
+  
+  /** Enable smart splitting feature (default: true) */
+  enableSmartSplitting?: boolean;
 }
 
 /**
