@@ -35,19 +35,21 @@ export class ResumeLayoutEngine {
 
   constructor(config: LayoutEngineConfig) {
     this.config = config;
-    
+
     // Resolve container
     const container = resolveContainer(config.container);
-    
+
     // Set default page config
     const pageConfig = {
       pageHeight: config.page?.height || 1123, // A4 at 96 DPI
+      width: config.page?.width,
+      padding: config.page?.padding,
       headerHeight: config.page?.header?.height || 50,
       footerHeight: config.page?.footer?.height || 30,
       marginTop: config.page?.marginTop || 20,
       marginBottom: config.page?.marginBottom || 20
     };
-    
+
     // Set default template config
     const templateConfig = config.template || {
       style: {
@@ -56,7 +58,7 @@ export class ResumeLayoutEngine {
         lineHeight: 1.5
       }
     };
-    
+
     // Create internal engine
     this.engine = new LayoutEngine(
       container,
@@ -69,10 +71,23 @@ export class ResumeLayoutEngine {
 
   /**
    * Add work experience to the resume
+   * @param position - The position/experience data to add
+   * @param columnIndex - The column index to place the content in (0-based, default: 0)
+   * @example
+   * ```typescript
+   * // Single column layout
+   * await engine.addExperience(position);
+   *
+   * // Multi-column layout - add to left column
+   * await engine.addExperience(position, 0);
+   *
+   * // Multi-column layout - add to right column
+   * await engine.addExperience(position, 1);
+   * ```
    */
-  async addExperience(position: Position): Promise<PlacementResult> {
+  async addExperience(position: Position, columnIndex: number = 0): Promise<PlacementResult> {
     try {
-      const result = await this.engine.addExperience(position);
+      const result = await this.engine.addExperience(position, columnIndex);
       return result;
     } catch (error) {
       this.config.events?.onError?.(error as Error);
@@ -82,10 +97,23 @@ export class ResumeLayoutEngine {
 
   /**
    * Add education to the resume
+   * @param education - The education data to add
+   * @param columnIndex - The column index to place the content in (0-based, default: 0)
+   * @example
+   * ```typescript
+   * // Single column layout
+   * await engine.addEducation(education);
+   *
+   * // Multi-column layout - add to left column
+   * await engine.addEducation(education, 0);
+   *
+   * // Multi-column layout - add to right column
+   * await engine.addEducation(education, 1);
+   * ```
    */
-  async addEducation(education: Education): Promise<PlacementResult> {
+  async addEducation(education: Education, columnIndex: number = 0): Promise<PlacementResult> {
     try {
-      const result = await this.engine.addEducation(education);
+      const result = await this.engine.addEducation(education, columnIndex);
       return result;
     } catch (error) {
       this.config.events?.onError?.(error as Error);
@@ -95,10 +123,23 @@ export class ResumeLayoutEngine {
 
   /**
    * Add skills section to the resume
+   * @param skills - The skills array to add
+   * @param columnIndex - The column index to place the content in (0-based, default: 0)
+   * @example
+   * ```typescript
+   * // Single column layout
+   * await engine.addSkills(skills);
+   *
+   * // Multi-column layout - add to left column
+   * await engine.addSkills(skills, 0);
+   *
+   * // Multi-column layout - add to right column
+   * await engine.addSkills(skills, 1);
+   * ```
    */
-  async addSkills(skills: Skill[]): Promise<PlacementResult> {
+  async addSkills(skills: Skill[], columnIndex: number = 0): Promise<PlacementResult> {
     try {
-      const result = await this.engine.addSkills(skills);
+      const result = await this.engine.addSkills(skills, columnIndex);
       return result;
     } catch (error) {
       this.config.events?.onError?.(error as Error);
@@ -138,9 +179,21 @@ export class ResumeLayoutEngine {
 
   /**
    * Get remaining space on current page
+   * @param columnIndex - The column index to check (0-based, default: 0)
+   * @example
+   * ```typescript
+   * // Single column layout
+   * const space = engine.getRemainingSpace();
+   *
+   * // Multi-column layout - check left column
+   * const spaceCol0 = engine.getRemainingSpace(0);
+   *
+   * // Multi-column layout - check right column
+   * const spaceCol1 = engine.getRemainingSpace(1);
+   * ```
    */
-  getRemainingSpace(): number {
-    return this.engine.getRemainingSpace();
+  getRemainingSpace(columnIndex: number = 0): number {
+    return this.engine.getRemainingSpace(columnIndex);
   }
 
   /**

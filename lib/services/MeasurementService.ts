@@ -6,51 +6,59 @@ import { createMeasurementContainer, forceReflow, getLineHeight } from '../utils
  */
 export class MeasurementService {
   private measurementContainer: HTMLElement;
-  
+
   constructor() {
     this.measurementContainer = createMeasurementContainer();
   }
-  
+
   /**
    * Measure component height (in hidden container)
    */
   measureComponent(
-    component: HTMLElement, 
-    templateConfig: TemplateConfig
+    component: HTMLElement,
+    templateConfig: TemplateConfig,
+    maxWidth?: number
   ): ComponentMeasurement {
     // Clone to avoid affecting original
     const clone = component.cloneNode(true) as HTMLElement;
-    
+
     // Apply template styles to match final output
     this.applyTemplateStyles(clone, templateConfig);
-    
+
+    // Apply width constraint if provided
+    if (maxWidth) {
+      clone.style.width = `${maxWidth}px`;
+      // Ensure box-sizing matches to handle padding correctly
+      clone.style.boxSizing = 'border-box';
+    }
+
     // Add to measurement container
     this.measurementContainer.appendChild(clone);
-    
+
     // Force browser to calculate layout
     forceReflow(clone);
-    
+
     // Measure total height
     const totalHeight = clone.offsetHeight;
-    
+
     // Measure component breakdown
     const breakdown = this.measureBreakdown(clone);
-    
+
     // Clean up
     this.measurementContainer.removeChild(clone);
-    
+
     return {
       totalHeight,
       breakdown,
       component: clone
     };
   }
-  
+
   private measureBreakdown(component: HTMLElement): ComponentBreakdown {
     const titleSection = component.querySelector('.position-title-section');
     const intro = component.querySelector('.position-intro');
     const statementsList = component.querySelector('.position-statements');
-    
+
     // Measure each statement individually
     const statements = Array.from(statementsList?.children || []).map((li, index) => {
       const element = li as HTMLElement;
@@ -61,7 +69,7 @@ export class MeasurementService {
         lineCount: Math.ceil(element.offsetHeight / lineHeight)
       };
     });
-    
+
     return {
       title: (titleSection as HTMLElement)?.offsetHeight || 0,
       intro: (intro as HTMLElement)?.offsetHeight || 0,
@@ -71,11 +79,11 @@ export class MeasurementService {
       }
     };
   }
-  
+
   private applyTemplateStyles(element: HTMLElement, config: TemplateConfig): void {
     const style = config.style;
     if (!style) return;
-    
+
     // Apply base styles
     if (style.fontFamily) {
       element.style.fontFamily = style.fontFamily;
@@ -86,7 +94,7 @@ export class MeasurementService {
     if (style.lineHeight) {
       element.style.lineHeight = String(style.lineHeight);
     }
-    
+
     // Apply section-specific styles (legacy support)
     const workStyles = style.spaces?.work;
     if (workStyles) {
@@ -98,7 +106,7 @@ export class MeasurementService {
       }
     }
   }
-  
+
   /**
    * Cleanup measurement container
    */

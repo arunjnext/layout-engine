@@ -25,9 +25,9 @@ export class RealtimeResumeEditor {
     );
   }
 
-  async onExperienceAdded(position: Position): Promise<void> {
+  async onExperienceAdded(position: Position, columnIndex: number = 0): Promise<void> {
     try {
-      const result = await this.layoutEngine.addExperience(position);
+      const result = await this.layoutEngine.addExperience(position, columnIndex);
 
       if (result.success && result.placed) {
         this.updateRemainingSpaceDisplay(result.remainingSpace);
@@ -74,15 +74,15 @@ export class RealtimeResumeEditor {
       }
     }
   }
-  
+
   private showSplitWarning(): void {
     console.warn('Content split across pages');
   }
-  
+
   private showOverflowWarning(remaining: number): void {
     console.warn(`Not enough space. Remaining: ${remaining}px`);
   }
-  
+
   private showError(): void {
     console.error('Error placing content');
   }

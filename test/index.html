@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Layout Engine - Smart Splitting Test</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -16,21 +18,23 @@
         <button id="test-multiple">Test Multiple Positions</button>
         <button id="test-education">Test Education Split</button>
         <button id="test-small-fit">Test Small Entry (Fits)</button>
+        <button id="test-two-columns">Test Two Columns (50/50)</button>
+        <button id="test-custom-widths">Test Custom Widths (60/40)</button>
         <button id="clear">Clear All</button>
       </div>
     </header>
-    
+
     <div class="test-info">
       <div id="info-panel">
         <h3>Test Information</h3>
         <div id="info-content">Click a test button to start</div>
       </div>
     </div>
-    
+
     <div id="resume-container" class="resume-container"></div>
   </div>
-  
+
   <script type="module" src="./main.ts"></script>
 </body>
-</html>
 
+</html>

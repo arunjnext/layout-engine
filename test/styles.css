@@ -111,6 +111,15 @@ button#clear:hover {
   position: relative;
 }
 
+.resume-column {
+  border: 1px dashed #ccc;
+  min-height: 100%;
+}
+
+.resume-page.multi-column {
+  padding: 20mm; /* Ensure padding is consistent */
+}
+
 .resume-page::after {
   content: attr(data-page-number);
   position: absolute;

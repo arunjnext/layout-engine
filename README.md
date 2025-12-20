@@ -7,6 +7,7 @@ A **headless, framework-agnostic** TypeScript library for automatic resume page 
 - 🎯 **Headless** - No UI assumptions, works with any framework
 - 📄 **Automatic Page Splitting** - Intelligently splits content across pages
 - 📏 **Precise Space Calculation** - Accurate measurement and placement
+- 📊 **Multi-Column Layout** - Support for 2+ columns with configurable widths
 - ⚛️ **Framework Agnostic** - Works with React, Vue, Angular, or vanilla JS
 - 🔧 **Fully Configurable** - Customize page size, margins, spacing, and templates
 - 📦 **TypeScript First** - Full type safety and IntelliSense support
@@ -102,6 +103,63 @@ function ResumePreview({ experiences }) {
 }
 ```
 
+### Multi-Column Layout
+
+Create professional multi-column resumes with configurable column widths:
+
+```typescript
+import { ResumeLayoutEngine } from "resume-layout-engine";
+
+// Equal columns (50%/50%)
+const engine = new ResumeLayoutEngine({
+  container: "#resume-container",
+  template: {
+    style: {
+      fontFamily: "Arial, sans-serif",
+      fontSize: "12px",
+      columnCount: 2,
+      columnGap: 20, // Gap between columns in pixels
+    },
+  },
+});
+
+// Add content to specific columns
+await engine.addExperience(workExperience, 0); // Left column
+await engine.addEducation(education, 1); // Right column
+await engine.addSkills(skills, 1); // Right column
+
+// Custom column widths (60%/40%)
+const customEngine = new ResumeLayoutEngine({
+  container: "#resume-container",
+  template: {
+    style: {
+      columnCount: 2,
+      columnGap: 20,
+      columnWidths: [3, 2], // 60% left, 40% right (3:2 ratio)
+    },
+  },
+});
+
+// Add content to wider left column
+await customEngine.addExperience(workExperience, 0); // 60% column
+
+// Add content to narrower right column
+await customEngine.addEducation(education, 1); // 40% column
+await customEngine.addSkills(skills, 1); // 40% column
+
+// Check remaining space per column
+const spaceLeft = customEngine.getRemainingSpace(0);
+const spaceRight = customEngine.getRemainingSpace(1);
+console.log(`Left: ${spaceLeft}px, Right: ${spaceRight}px`);
+```
+
+**Common Column Ratios:**
+
+- `[1, 1]` - Equal columns (50%/50%)
+- `[2, 1]` - Left column twice as wide (66.67%/33.33%)
+- `[3, 2]` - Common resume layout (60%/40%)
+- `[3, 1]` - Wide main column (75%/25%)
+
 ## 📖 Documentation
 
 ### Configuration
@@ -140,10 +198,10 @@ interface LayoutEngineConfig {
 ### API Methods
 
 ```typescript
-// Add content
-await engine.addExperience(position: Position): Promise<PlacementResult>
-await engine.addEducation(education: Education): Promise<PlacementResult>
-await engine.addSkills(skills: Skill[]): Promise<PlacementResult>
+// Add content (with optional column selection for multi-column layouts)
+await engine.addExperience(position: Position, columnIndex?: number): Promise<PlacementResult>
+await engine.addEducation(education: Education, columnIndex?: number): Promise<PlacementResult>
+await engine.addSkills(skills: Skill[], columnIndex?: number): Promise<PlacementResult>
 
 // Update content
 await engine.updateExperience(id: string, position: Position): Promise<PlacementResult>
@@ -155,7 +213,7 @@ engine.removeEducation(id: string): void
 
 // Get information
 engine.getPageCount(): number
-engine.getRemainingSpace(): number
+engine.getRemainingSpace(columnIndex?: number): number  // Check specific column or default (0)
 engine.getPages(): HTMLElement[]
 engine.getCurrentPageIndex(): number
 engine.getSpaceBreakdown(): SpaceBreakdown | null
