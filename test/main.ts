@@ -491,6 +491,280 @@ document.getElementById('test-smart-column-fill')?.addEventListener('click', asy
   }
 });
 
+// Orphan Detection Tests
+document.getElementById('test-orphan-prevention')?.addEventListener('click', async () => {
+  // Initialize engine with orphan detection enabled
+  const container = document.getElementById('resume-container');
+  if (!container) throw new Error('Container not found');
+  container.innerHTML = '';
+
+  engine = new ResumeLayoutEngine({
+    container,
+    page: {
+      width: 793.7,
+      height: 1123,
+      padding: { top: 75.59, right: 75.59, bottom: 75.59, left: 75.59 },
+      marginTop: 20,
+      marginBottom: 20,
+      header: { height: 10 },
+      footer: { height: 10 },
+    },
+    template: {
+      style: {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '12px',
+        lineHeight: 1.5,
+        spacing: {
+          experience: {
+            marginTop: 10,
+            marginBottom: 0,
+            intro: { marginTop: 5 },
+            statements: { list: { marginTop: 5 }, item: { marginTop: 3 } },
+          },
+        },
+      },
+    },
+    splitGuidelines: {
+      enableSmartSplitting: true,
+      preventOrphans: true,              // ✅ Orphan detection enabled
+      minChildrenToAvoidOrphan: 1,
+      cascadeOrphanDetection: true,
+    },
+    events: {
+      onPageCreated: (pageIndex) => updateInfo(`✅ Page ${pageIndex + 1} created`),
+      onContentPlaced: (result) => {
+        if (result.split) {
+          updateInfo(`✂️ Content split! Page ${(result.pageIndex || 0) + 1}`);
+        } else {
+          updateInfo(`✓ Content placed on page ${(result.pageIndex || 0) + 1}`);
+        }
+      },
+    },
+  });
+
+  updateInfo('🛡️ Testing Orphan Prevention (ENABLED)...');
+  updateInfo('📝 Scenario: Fill page, then add position that would orphan title');
+
+  // Fill the page with content
+  for (let i = 0; i < 10; i++) {
+    await engine.addExperience({
+      _id: `fill-${i}`,
+      title: `Filler Position ${i + 1}`,
+      company: 'Company',
+      startDate: '2020-01',
+      endDate: '2021-12',
+      description: [`Task 1`, `Task 2`],
+    });
+  }
+
+  // Now add the orphan test position
+  // This has title + intro + 3 statements
+  // If statements don't fit, orphan detection should move entire block
+  const orphanTest = testScenarios.orphanTestPosition();
+  const result = await engine.addExperience(orphanTest);
+
+  updateInfo(`📊 Result: Position placed on page ${(result.pageIndex || 0) + 1}`);
+  updateInfo(`✅ With orphan detection: Title should NOT be alone on previous page`);
+  updateInfo(`💡 Check console for orphan detection logs`);
+});
+
+document.getElementById('test-orphan-cascade')?.addEventListener('click', async () => {
+  const container = document.getElementById('resume-container');
+  if (!container) throw new Error('Container not found');
+  container.innerHTML = '';
+
+  engine = new ResumeLayoutEngine({
+    container,
+    page: {
+      width: 793.7,
+      height: 1123,
+      padding: { top: 75.59, right: 75.59, bottom: 75.59, left: 75.59 },
+      marginTop: 20,
+      marginBottom: 20,
+      header: { height: 10 },
+      footer: { height: 10 },
+    },
+    template: {
+      style: {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '12px',
+        lineHeight: 1.5,
+        spacing: {
+          experience: {
+            marginTop: 10,
+            marginBottom: 0,
+            intro: { marginTop: 5 },
+            statements: { list: { marginTop: 5 }, item: { marginTop: 3 } },
+          },
+        },
+      },
+    },
+    splitGuidelines: {
+      enableSmartSplitting: true,
+      preventOrphans: true,
+      minChildrenToAvoidOrphan: 1,
+      cascadeOrphanDetection: true,      // ✅ Cascading enabled
+    },
+    events: {
+      onPageCreated: (pageIndex) => updateInfo(`✅ Page ${pageIndex + 1} created`),
+      onContentPlaced: (result) => updateInfo(`✓ Placed on page ${(result.pageIndex || 0) + 1}`),
+    },
+  });
+
+  updateInfo('🔗 Testing Cascading Orphan Detection...');
+  updateInfo('📝 Scenario: Position with many statements that triggers cascade');
+
+  // Fill page
+  for (let i = 0; i < 9; i++) {
+    await engine.addExperience({
+      _id: `fill-${i}`,
+      title: `Position ${i + 1}`,
+      company: 'Company',
+      startDate: '2020-01',
+      endDate: '2021-12',
+      description: [`Task 1`, `Task 2`, `Task 3`],
+    });
+  }
+
+  // Add position with many statements
+  const manyStatements = testScenarios.manyStatementsPosition();
+  await engine.addExperience(manyStatements);
+
+  updateInfo(`✅ Cascade test complete! Check that title+intro stay with statements`);
+});
+
+document.getElementById('test-orphan-disabled')?.addEventListener('click', async () => {
+  const container = document.getElementById('resume-container');
+  if (!container) throw new Error('Container not found');
+  container.innerHTML = '';
+
+  engine = new ResumeLayoutEngine({
+    container,
+    page: {
+      width: 793.7,
+      height: 1123,
+      padding: { top: 75.59, right: 75.59, bottom: 75.59, left: 75.59 },
+      marginTop: 20,
+      marginBottom: 20,
+      header: { height: 10 },
+      footer: { height: 10 },
+    },
+    template: {
+      style: {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '12px',
+        lineHeight: 1.5,
+        spacing: {
+          experience: {
+            marginTop: 10,
+            marginBottom: 0,
+            intro: { marginTop: 5 },
+            statements: { list: { marginTop: 5 }, item: { marginTop: 3 } },
+          },
+        },
+      },
+    },
+    splitGuidelines: {
+      enableSmartSplitting: true,
+      preventOrphans: false,             // ❌ Orphan detection DISABLED
+      minChildrenToAvoidOrphan: 1,
+      cascadeOrphanDetection: false,
+    },
+    events: {
+      onPageCreated: (pageIndex) => updateInfo(`✅ Page ${pageIndex + 1} created`),
+      onContentPlaced: (result) => updateInfo(`✓ Placed on page ${(result.pageIndex || 0) + 1}`),
+    },
+  });
+
+  updateInfo('❌ Testing WITHOUT Orphan Detection (DISABLED)...');
+  updateInfo('📝 Same scenario as test 1, but orphan detection is OFF');
+
+  // Fill page
+  for (let i = 0; i < 10; i++) {
+    await engine.addExperience({
+      _id: `fill-${i}`,
+      title: `Filler Position ${i + 1}`,
+      company: 'Company',
+      startDate: '2020-01',
+      endDate: '2021-12',
+      description: [`Task 1`, `Task 2`],
+    });
+  }
+
+  // Add orphan test position
+  const orphanTest = testScenarios.orphanTestPosition();
+  await engine.addExperience(orphanTest);
+
+  updateInfo(`⚠️ Without orphan detection: Title MAY be orphaned on previous page`);
+  updateInfo(`💡 Compare with test 1 to see the difference`);
+});
+
+document.getElementById('test-orphan-threshold')?.addEventListener('click', async () => {
+  const container = document.getElementById('resume-container');
+  if (!container) throw new Error('Container not found');
+  container.innerHTML = '';
+
+  engine = new ResumeLayoutEngine({
+    container,
+    page: {
+      width: 793.7,
+      height: 1123,
+      padding: { top: 75.59, right: 75.59, bottom: 75.59, left: 75.59 },
+      marginTop: 20,
+      marginBottom: 20,
+      header: { height: 10 },
+      footer: { height: 10 },
+    },
+    template: {
+      style: {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '12px',
+        lineHeight: 1.5,
+        spacing: {
+          experience: {
+            marginTop: 10,
+            marginBottom: 0,
+            intro: { marginTop: 5 },
+            statements: { list: { marginTop: 5 }, item: { marginTop: 3 } },
+          },
+        },
+      },
+    },
+    splitGuidelines: {
+      enableSmartSplitting: true,
+      preventOrphans: true,
+      minChildrenToAvoidOrphan: 2,       // 📊 Require at least 2 children
+      cascadeOrphanDetection: true,
+    },
+    events: {
+      onPageCreated: (pageIndex) => updateInfo(`✅ Page ${pageIndex + 1} created`),
+      onContentPlaced: (result) => updateInfo(`✓ Placed on page ${(result.pageIndex || 0) + 1}`),
+    },
+  });
+
+  updateInfo('📊 Testing Min Children Threshold (minChildrenToAvoidOrphan: 2)...');
+  updateInfo('📝 Title needs at least 2 children to avoid being orphaned');
+
+  // Fill page
+  for (let i = 0; i < 10; i++) {
+    await engine.addExperience({
+      _id: `fill-${i}`,
+      title: `Position ${i + 1}`,
+      company: 'Company',
+      startDate: '2020-01',
+      endDate: '2021-12',
+      description: [`Task 1`, `Task 2`],
+    });
+  }
+
+  // Add position with 3 statements
+  const orphanTest = testScenarios.orphanTestPosition();
+  await engine.addExperience(orphanTest);
+
+  updateInfo(`✅ With threshold=2: Title needs 2+ children on same page`);
+  updateInfo(`💡 If only 1 statement fits, entire block should move`);
+});
+
 document.getElementById('clear')?.addEventListener('click', () => {
   if (engine) {
     engine.reset();

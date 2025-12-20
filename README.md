@@ -6,6 +6,7 @@ A **headless, framework-agnostic** TypeScript library for automatic resume page 
 
 - 🎯 **Headless** - No UI assumptions, works with any framework
 - 📄 **Automatic Page Splitting** - Intelligently splits content across pages
+- 🛡️ **Orphan Detection** - Prevents titles from being left alone without their content
 - 📏 **Precise Space Calculation** - Accurate measurement and placement
 - 📊 **Multi-Column Layout** - Support for 2+ columns with configurable widths
 - ⚛️ **Framework Agnostic** - Works with React, Vue, Angular, or vanilla JS

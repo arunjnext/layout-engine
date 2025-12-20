@@ -32,6 +32,21 @@ h1 {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.controls h3 {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.controls h3:first-child {
+  margin-top: 0;
 }
 
 button {
@@ -54,8 +69,27 @@ button:active {
   transform: scale(0.98);
 }
 
+/* Orphan detection test buttons */
+button[id^="test-orphan"] {
+  background: #28a745;
+  font-weight: 600;
+}
+
+button[id^="test-orphan"]:hover {
+  background: #218838;
+}
+
+button#test-orphan-disabled {
+  background: #6c757d;
+}
+
+button#test-orphan-disabled:hover {
+  background: #5a6268;
+}
+
 button#clear {
   background: #dc3545;
+  margin-top: 10px;
 }
 
 button#clear:hover {
@@ -73,6 +107,37 @@ button#clear:hover {
 #info-panel h3 {
   margin-bottom: 10px;
   color: #333;
+}
+
+.test-description {
+  background: #e7f3ff;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border-left: 4px solid #007bff;
+}
+
+.test-description p {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 14px;
+}
+
+.test-description ul {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.test-description li {
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.test-description em {
+  color: #666;
+  font-size: 12px;
 }
 
 #info-content {

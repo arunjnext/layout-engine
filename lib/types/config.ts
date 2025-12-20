@@ -182,6 +182,15 @@ export interface SplitGuidelines {
 
   /** Enable smart splitting feature (default: true) */
   enableSmartSplitting?: boolean;
+
+  /** Prevent orphaned headings/titles (default: true) */
+  preventOrphans?: boolean;
+
+  /** Minimum children required to avoid orphan (default: 1) */
+  minChildrenToAvoidOrphan?: number;
+
+  /** Cascade orphan detection up hierarchy (default: true) */
+  cascadeOrphanDetection?: boolean;
 }
 
 /**

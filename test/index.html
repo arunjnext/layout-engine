@@ -13,14 +13,25 @@
     <header>
       <h1>Resume Layout Engine - Testing Playground</h1>
       <div class="controls">
+        <h3>Basic Tests</h3>
         <button id="test-smart-split">Test Smart Split</button>
         <button id="test-whole-move">Test Whole Block Move</button>
         <button id="test-multiple">Test Multiple Positions</button>
         <button id="test-education">Test Education Split</button>
         <button id="test-small-fit">Test Small Entry (Fits)</button>
+
+        <h3>Multi-Column Tests</h3>
         <button id="test-two-columns">Test Two Columns (50/50)</button>
         <button id="test-custom-widths">Test Custom Widths (60/40)</button>
         <button id="test-smart-column-fill">Test Smart Column Fill</button>
+
+        <h3>Orphan Detection Tests</h3>
+        <button id="test-orphan-prevention">🛡️ Test Orphan Prevention</button>
+        <button id="test-orphan-cascade">🔗 Test Cascading Detection</button>
+        <button id="test-orphan-disabled">❌ Test Without Orphan Detection</button>
+        <button id="test-orphan-threshold">📊 Test Min Children Threshold</button>
+
+        <h3>Controls</h3>
         <button id="clear">Clear All</button>
       </div>
     </header>
@@ -28,6 +39,16 @@
     <div class="test-info">
       <div id="info-panel">
         <h3>Test Information</h3>
+        <div class="test-description">
+          <p><strong>Orphan Detection Tests:</strong></p>
+          <ul>
+            <li>🛡️ <strong>Test Orphan Prevention</strong> - Demonstrates orphan detection preventing titles from being left alone</li>
+            <li>🔗 <strong>Test Cascading Detection</strong> - Shows how orphan detection cascades up the hierarchy (statements → intro → title)</li>
+            <li>❌ <strong>Test Without Orphan Detection</strong> - Compare behavior when orphan detection is disabled</li>
+            <li>📊 <strong>Test Min Children Threshold</strong> - Tests the minChildrenToAvoidOrphan setting (requires 2+ children)</li>
+          </ul>
+          <p><em>Check the browser console for detailed orphan detection logs!</em></p>
+        </div>
         <div id="info-content">Click a test button to start</div>
       </div>
     </div>

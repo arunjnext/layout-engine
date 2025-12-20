@@ -83,5 +83,36 @@ export const testScenarios = {
       'Graduated with distinction',
     ],
   }),
+
+  // Position designed to test orphan detection
+  // This has a title, intro, and just a few statements
+  // If the statements don't fit, the title+intro would be orphaned
+  orphanTestPosition: (): Position => ({
+    _id: 'orphan-test-1',
+    title: 'Technical Lead',
+    company: 'Innovation Labs',
+    startDate: '2023-01',
+    endDate: 'Present',
+    intro: 'Led technical initiatives and mentored team members in modern development practices.',
+    description: [
+      'Architected cloud-native solutions using AWS and Kubernetes',
+      'Implemented DevOps best practices reducing deployment time by 70%',
+      'Mentored 8 engineers in system design and code quality',
+    ],
+  }),
+
+  // Position with many statements to test orphan prevention
+  // When split, should ensure title isn't left alone
+  manyStatementsPosition: (): Position => ({
+    _id: 'many-statements-1',
+    title: 'Principal Engineer',
+    company: 'Enterprise Solutions Corp',
+    startDate: '2020-01',
+    endDate: '2024-12',
+    intro: 'Drove technical excellence across multiple product teams and established engineering standards.',
+    description: Array(15).fill(0).map((_, i) =>
+      `Key achievement ${i + 1}: Delivered significant impact through technical leadership and hands-on development`
+    ),
+  }),
 };
 

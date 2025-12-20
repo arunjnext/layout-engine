@@ -1,4 +1,6 @@
-import type { TemplateConfig, SplitGuidelines } from '../../types/config';
+import { OrphanDetector } from '../../services/OrphanDetector';
+import type { SplitGuidelines, TemplateConfig } from '../../types/config';
+import type { OrphanDetectionOptions } from '../../types/orphan';
 import type { Position, SplitIndexes } from '../../types/resume';
 import type { BaseSplitter, SplitOptions, SplitResult } from '../base/BaseSplitter';
 import { PositionHeightCalculator } from './PositionHeightCalculator';
@@ -8,16 +10,21 @@ import { PositionHeightCalculator } from './PositionHeightCalculator';
  */
 export class PositionSplitter implements BaseSplitter {
   private heightCalculator: PositionHeightCalculator;
+  private orphanDetector: OrphanDetector;
   private defaultGuidelines: Required<SplitGuidelines>;
-  
+
   constructor(guidelines?: SplitGuidelines) {
     this.heightCalculator = new PositionHeightCalculator();
+    this.orphanDetector = new OrphanDetector();
     this.defaultGuidelines = {
       minSplitPercentage: guidelines?.minSplitPercentage ?? 0.3,
       minRemainingSpace: guidelines?.minRemainingSpace ?? 100,
       preferStatementSplits: guidelines?.preferStatementSplits ?? true,
       keepTitleWithContent: guidelines?.keepTitleWithContent ?? true,
       enableSmartSplitting: guidelines?.enableSmartSplitting ?? true,
+      preventOrphans: guidelines?.preventOrphans ?? true,
+      minChildrenToAvoidOrphan: guidelines?.minChildrenToAvoidOrphan ?? 1,
+      cascadeOrphanDetection: guidelines?.cascadeOrphanDetection ?? true,
     };
   }
   
@@ -220,7 +227,7 @@ export class PositionSplitter implements BaseSplitter {
       // Can't split meaningfully - title alone isn't enough
       return null;
     }
-    
+
     // Create split positions
     const currentPagePosition: Position = {
       ...position,
@@ -232,11 +239,11 @@ export class PositionSplitter implements BaseSplitter {
         statementsEndIndex: statementsOnCurrentPage.length - 1
       }
     };
-    
-    const nextPageStatements = position.description?.filter((_, i) => 
+
+    const nextPageStatements = position.description?.filter((_, i) =>
       !statementsOnCurrentPage.includes(i)
     ) || [];
-    
+
     const nextPagePosition: Position = {
       ...position,
       // Don't repeat intro on continuation if it was on current page
@@ -248,7 +255,25 @@ export class PositionSplitter implements BaseSplitter {
         statementsEndIndex: (position.description?.length || 0) - 1
       }
     };
-    
+
+    // NEW: Orphan detection - check if this split creates orphans
+    const orphanOptions: OrphanDetectionOptions = {
+      minChildren: this.defaultGuidelines.minChildrenToAvoidOrphan,
+      cascade: this.defaultGuidelines.cascadeOrphanDetection,
+      enabled: this.defaultGuidelines.preventOrphans
+    };
+
+    const orphanCheck = this.orphanDetector.checkSplitForOrphans(
+      currentPagePosition,
+      nextPagePosition,
+      orphanOptions
+    );
+
+    if (orphanCheck.isOrphaned && orphanCheck.recommendation === 'MOVE_ENTIRE_BLOCK') {
+      // Don't split - move entire block to next page
+      return null;
+    }
+
     // If we have statements on next page but no intro, we might want to show title again
     // For now, we'll keep it simple - continuation shows only remaining statements
     

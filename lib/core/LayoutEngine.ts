@@ -1,5 +1,6 @@
 import { ComponentFactory } from '../services/ComponentFactory';
 import { MeasurementService } from '../services/MeasurementService';
+import { OrphanDetector } from '../services/OrphanDetector';
 import { SplitterFactory } from '../splitters/SplitterFactory';
 import type { ComponentMeasurement, EventCallbacks, PlacementResult, SplitGuidelines, TemplateConfig } from '../types';
 import type { PageConfig } from '../types/measurement';
@@ -13,6 +14,7 @@ import { SpaceCalculator } from '../utils/SpaceCalculator';
 export class LayoutEngine {
   private componentFactory: ComponentFactory;
   private measurementService: MeasurementService;
+  private orphanDetector: OrphanDetector;
   private spaceCalculator: SpaceCalculator;
   private pagesContainer: HTMLElement;
   private pages: HTMLElement[] = [];
@@ -34,6 +36,7 @@ export class LayoutEngine {
   ) {
     this.componentFactory = new ComponentFactory();
     this.measurementService = new MeasurementService();
+    this.orphanDetector = new OrphanDetector();
     this.pagesContainer = pagesContainer;
     this.pageConfig = pageConfig;
     this.templateConfig = templateConfig;
@@ -493,6 +496,19 @@ export class LayoutEngine {
     );
 
     const newRemainingSpace = this.spaceCalculator.calculateRemainingSpace();
+
+    // Check for orphans on the current page (engine-level detection)
+    // This is a secondary check after block-level detection in splitters
+    if (this.splitGuidelines?.preventOrphans !== false) {
+      const orphanInfo = this.orphanDetector.detectOrphansOnPage(currentPage, columnIndex);
+
+      if (orphanInfo && orphanInfo.shouldMove) {
+        // Note: For now, we log the orphan detection
+        // In a future enhancement, we could automatically move the orphaned content
+        // to the next page, but this requires careful handling of space recalculation
+        console.warn('Orphan detected on page', this.currentPageIndex, ':', orphanInfo);
+      }
+    }
 
     const result: PlacementResult = {
       success: true,

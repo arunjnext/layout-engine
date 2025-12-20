@@ -28,6 +28,9 @@ interface LayoutEngineConfig {
 
   // Rendering options
   rendering?: RenderingOptions;
+
+  // Smart splitting guidelines (includes orphan detection)
+  splitGuidelines?: SplitGuidelines;
 }
 ```
 
@@ -135,6 +138,58 @@ const engine = new ResumeLayoutEngine({
       columnGap: 15,
       columnWidths: [2, 1, 1],
     },
+  },
+});
+```
+
+#### SplitGuidelines
+
+Controls smart splitting behavior including orphan detection.
+
+```typescript
+interface SplitGuidelines {
+  // Minimum percentage of content that must fit to attempt split (default: 0.3 = 30%)
+  minSplitPercentage?: number;
+
+  // Minimum space needed in pixels to attempt split (default: 100px)
+  minRemainingSpace?: number;
+
+  // Prefer splitting at statement boundaries (default: true)
+  preferStatementSplits?: boolean;
+
+  // Always keep title with some content (default: true)
+  keepTitleWithContent?: boolean;
+
+  // Enable smart splitting feature (default: true)
+  enableSmartSplitting?: boolean;
+
+  // Prevent orphaned headings/titles (default: true)
+  preventOrphans?: boolean;
+
+  // Minimum children required to avoid orphan (default: 1)
+  minChildrenToAvoidOrphan?: number;
+
+  // Cascade orphan detection up hierarchy (default: true)
+  cascadeOrphanDetection?: boolean;
+}
+```
+
+**Orphan Detection:**
+
+Orphan detection prevents parent elements (titles, intro text) from being left alone on a page when all their children (list items) are moved to the next page. See [ORPHAN_DETECTION.md](./ORPHAN_DETECTION.md) for detailed documentation.
+
+**Example:**
+
+```typescript
+const engine = new ResumeLayoutEngine({
+  container: "#resume",
+  splitGuidelines: {
+    enableSmartSplitting: true,
+    preventOrphans: true, // Enable orphan detection
+    minChildrenToAvoidOrphan: 1, // Require at least 1 child to avoid orphan
+    cascadeOrphanDetection: true, // Check parent hierarchy
+    minSplitPercentage: 0.3, // At least 30% must fit to split
+    minRemainingSpace: 100, // Need at least 100px to attempt split
   },
 });
 ```

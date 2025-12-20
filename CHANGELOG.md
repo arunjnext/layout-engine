@@ -5,7 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.0] - 2025-12-20
+
+### ✨ Added
+
+#### Orphan Detection System
+
+- **Orphan Prevention** - Prevents parent elements from being left alone when children move to next page
+
+  - Detects when titles/headings would be orphaned (left alone without their children)
+  - Two-tier detection: block-level (during splitting) and engine-level (after placement)
+  - Cascading detection checks upward through hierarchy (statements → intro → title)
+  - Automatically moves entire block to next page when orphan is detected
+  - Improves visual hierarchy and readability of split content
+
+- **Configuration Options** - New `SplitGuidelines` properties for orphan detection
+
+  - `preventOrphans?: boolean` - Enable/disable orphan detection (default: `true`)
+  - `minChildrenToAvoidOrphan?: number` - Minimum children required to avoid orphan (default: `1`)
+  - `cascadeOrphanDetection?: boolean` - Enable cascading detection up hierarchy (default: `true`)
+
+- **OrphanDetector Service** - New service for orphan detection logic
+
+  - `checkSplitForOrphans()` - Block-level orphan detection during splitting
+  - `detectOrphansOnPage()` - Engine-level orphan detection on rendered pages
+  - `analyzeContent()` - Analyzes content structure for orphan detection
+  - `identifyOrphanedElements()` - Identifies orphaned elements with cascading logic
+
+- **Documentation** - Comprehensive orphan detection documentation
+  - New `docs/ORPHAN_DETECTION.md` with detailed explanation and examples
+  - Updated `docs/API.md` with `SplitGuidelines` configuration
+  - Test scenarios in `test/test-scenarios.ts` for orphan detection
+
+### 🔧 Improved
+
+- **PositionSplitter** - Integrated orphan detection into smart splitting logic
+
+  - Checks for orphans after creating split positions
+  - Returns `null` to trigger "move entire block" when orphan detected
+  - Respects orphan detection configuration from `SplitGuidelines`
+
+- **LayoutEngine** - Added engine-level orphan validation
+  - Validates final layout after content placement
+  - Logs warnings when orphans are detected (future: auto-resolution)
+  - Works correctly with multi-column layouts
+
+## [1.3.1] - 2025-12-20
 
 ### 🐛 Fixed
 

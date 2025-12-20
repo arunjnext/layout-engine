@@ -6,30 +6,23 @@
 
 // Configuration types
 export type {
-  LayoutEngineConfig,
-  PageConfig,
-  TemplateConfig,
-  SectionSpacing,
-  EventCallbacks,
-  RenderingOptions,
-  PlacementResult,
-  SplitGuidelines,
+    EventCallbacks, LayoutEngineConfig,
+    PageConfig, PlacementResult, RenderingOptions, SectionSpacing, SplitGuidelines, TemplateConfig
 } from './config';
 
 // Resume data types
 export type {
-  Position,
-  Education,
-  Skill,
-  ResumeData,
-  AccomplishmentLines,
-  SplitIndexes,
+    AccomplishmentLines, Education, Position, ResumeData, Skill, SplitIndexes
 } from './resume';
 
 // Measurement types
 export type {
-  ComponentMeasurement,
-  ComponentBreakdown,
-  SpaceBreakdown,
+    ComponentBreakdown, ComponentMeasurement, SpaceBreakdown
 } from './measurement';
+
+// Orphan detection types
+export type {
+    ContentAnalysis, OrphanCheckResult,
+    OrphanInfo
+} from './orphan';
 
