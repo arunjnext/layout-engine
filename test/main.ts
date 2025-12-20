@@ -431,6 +431,66 @@ document.getElementById('test-custom-widths')?.addEventListener('click', async (
   updateInfo(`✅ Custom widths test complete! Pages: ${pageCount}, Wide col (60%): ${spaceCol0}px, Narrow col (40%): ${spaceCol1}px`);
 });
 
+document.getElementById('test-smart-column-fill')?.addEventListener('click', async () => {
+  engine = initTwoColumnEngine();
+  updateInfo('🧪 Testing Smart Column Fill - Fill left column first, then add to right column...');
+
+  // Step 1: Fill the left column (column 0) until it's nearly full
+  updateInfo('📝 Step 1: Filling left column with large content...');
+  const leftPosition1 = testScenarios.largePosition();
+  leftPosition1.title = "Left Column - Position 1";
+  await engine.addExperience(leftPosition1, 0);
+
+  const leftPosition2 = testScenarios.largePosition();
+  leftPosition2.title = "Left Column - Position 2";
+  await engine.addExperience(leftPosition2, 0);
+
+  const leftPosition3 = testScenarios.smallPosition();
+  leftPosition3.title = "Left Column - Position 3";
+  await engine.addExperience(leftPosition3, 0);
+
+  // Check space after filling left column
+  const spaceCol0AfterFill = engine.getRemainingSpace(0);
+  const spaceCol1AfterFill = engine.getRemainingSpace(1);
+  const pagesAfterLeftFill = engine.getPageCount();
+  updateInfo(`📊 After filling left: Pages=${pagesAfterLeftFill}, Left space=${spaceCol0AfterFill}px, Right space=${spaceCol1AfterFill}px`);
+
+  // Step 2: Now add content to RIGHT column (column 1)
+  // This should fill page 1's right column first (which is still empty)
+  // NOT create a new page
+  updateInfo('📝 Step 2: Adding content to RIGHT column (should fill page 1 right column)...');
+
+  const rightPosition1 = testScenarios.introOnly();
+  rightPosition1.title = "Right Column - Position 1 (Should be on Page 1)";
+  const result1 = await engine.addExperience(rightPosition1, 1);
+  updateInfo(`✓ Right Position 1 placed on page ${(result1.pageIndex || 0) + 1}, column ${result1.columnIndex}`);
+
+  const rightPosition2 = testScenarios.smallPosition();
+  rightPosition2.title = "Right Column - Position 2 (Should be on Page 1)";
+  const result2 = await engine.addExperience(rightPosition2, 1);
+  updateInfo(`✓ Right Position 2 placed on page ${(result2.pageIndex || 0) + 1}, column ${result2.columnIndex}`);
+
+  // Add education to right column
+  const education = testScenarios.largeEducation();
+  education.degree = "Right Column Education (Should be on Page 1)";
+  const result3 = await engine.addEducation(education, 1);
+  updateInfo(`✓ Education placed on page ${(result3.pageIndex || 0) + 1}, column ${result3.columnIndex}`);
+
+  // Final stats
+  const finalPages = engine.getPageCount();
+  const finalSpaceCol0 = engine.getRemainingSpace(0);
+  const finalSpaceCol1 = engine.getRemainingSpace(1);
+
+  updateInfo(`📊 Final: Pages=${finalPages}, Left space=${finalSpaceCol0}px, Right space=${finalSpaceCol1}px`);
+
+  // Verify the behavior
+  if (result1.pageIndex === 0 && result2.pageIndex === 0 && result3.pageIndex === 0) {
+    updateInfo(`✅ SUCCESS! All right column content correctly placed on page 1 (filled earlier page first)`);
+  } else {
+    updateInfo(`❌ ISSUE: Some content was placed on wrong page. Check placement above.`);
+  }
+});
+
 document.getElementById('clear')?.addEventListener('click', () => {
   if (engine) {
     engine.reset();

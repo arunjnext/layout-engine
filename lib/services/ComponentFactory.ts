@@ -19,33 +19,35 @@ export class ComponentFactory {
     if (position._splitContinuation) {
       container.dataset.splitContinuation = 'true';
     }
-    
-    // Title section
-    const titleSection = document.createElement('div');
-    titleSection.className = 'position-title-section';
-    
-    const title = document.createElement('h3');
-    title.className = 'position-title';
-    title.textContent = position.title;
-    titleSection.appendChild(title);
-    
-    const company = document.createElement('span');
-    company.className = 'position-company';
-    company.textContent = ` at ${position.company}`;
-    titleSection.appendChild(company);
-    
-    if (position.startDate || position.endDate) {
-      const dates = document.createElement('span');
-      dates.className = 'position-dates';
-      const dateRange = position.endDate 
-        ? `${position.startDate} - ${position.endDate}`
-        : `${position.startDate} - Present`;
-      dates.textContent = ` (${dateRange})`;
-      titleSection.appendChild(dates);
+
+    // Title section (only show on first page, not on continuation)
+    if (!position._splitContinuation) {
+      const titleSection = document.createElement('div');
+      titleSection.className = 'position-title-section';
+
+      const title = document.createElement('h3');
+      title.className = 'position-title';
+      title.textContent = position.title;
+      titleSection.appendChild(title);
+
+      const company = document.createElement('span');
+      company.className = 'position-company';
+      company.textContent = ` at ${position.company}`;
+      titleSection.appendChild(company);
+
+      if (position.startDate || position.endDate) {
+        const dates = document.createElement('span');
+        dates.className = 'position-dates';
+        const dateRange = position.endDate
+          ? `${position.startDate} - ${position.endDate}`
+          : `${position.startDate} - Present`;
+        dates.textContent = ` (${dateRange})`;
+        titleSection.appendChild(dates);
+      }
+
+      container.appendChild(titleSection);
     }
-    
-    container.appendChild(titleSection);
-    
+
     // Intro section (only if present and not continuation)
     if (position.intro && !position._splitContinuation) {
       const intro = document.createElement('div');
@@ -91,19 +93,22 @@ export class ComponentFactory {
     if (education._splitContinuation) {
       container.dataset.splitContinuation = 'true';
     }
-    
-    const degree = document.createElement('h3');
-    degree.className = 'education-degree';
-    degree.textContent = education.degree;
-    container.appendChild(degree);
-    
-    const institution = document.createElement('div');
-    institution.className = 'education-institution';
-    institution.textContent = education.institution;
-    if (education.year) {
-      institution.textContent += ` (${education.year})`;
+
+    // Header section (only show on first page, not on continuation)
+    if (!education._splitContinuation) {
+      const degree = document.createElement('h3');
+      degree.className = 'education-degree';
+      degree.textContent = education.degree;
+      container.appendChild(degree);
+
+      const institution = document.createElement('div');
+      institution.className = 'education-institution';
+      institution.textContent = education.institution;
+      if (education.year) {
+        institution.textContent += ` (${education.year})`;
+      }
+      container.appendChild(institution);
     }
-    container.appendChild(institution);
     
     if (education.description && education.description.length > 0) {
       const descriptionList = document.createElement('ul');

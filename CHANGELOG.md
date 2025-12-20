@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🐛 Fixed
+
+- **Smart Column Placement** - Fixed multi-column content placement to fill earlier pages first
+
+  - Content now fills the earliest page with available space in the target column
+  - Prevents creating new pages when earlier pages have empty columns
+  - Optimizes space utilization across all pages
+  - Example: If page 1 left column is full but right column is empty, adding content to the right column now correctly fills page 1 instead of creating page 2
+
+- **Smart Split Header Duplication** - Fixed position/education headers being duplicated on continuation pages
+  - Position headers (title, company, dates) now only appear on the first page
+  - Education headers (degree, institution, year) now only appear on the first page
+  - Continuation pages show only the remaining bullet points/descriptions
+  - Added visual indicator ("(continued)") with yellow border for split continuations
+  - Prevents confusing duplicate headers when content is split across pages
+
+### 🔧 Improved
+
+- **Internal Logic**
+
+  - Added `findFirstAvailablePage()` method to search for available space across all pages
+  - Modified `placeContent()` to use intelligent page selection instead of always using the latest page
+  - Better space utilization in multi-column layouts
+
+- **Component Rendering**
+  - `ComponentFactory.createPositionComponent()` now checks `_splitContinuation` flag before rendering header
+  - `ComponentFactory.createEducationComponent()` now checks `_splitContinuation` flag before rendering header
+  - Cleaner continuation rendering with visual indicators
+
 ## [1.2.0] - 2025-12-20
 
 ### ✨ Added

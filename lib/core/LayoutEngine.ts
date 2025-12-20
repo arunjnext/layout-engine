@@ -165,6 +165,30 @@ export class LayoutEngine {
   }
 
   /**
+   * Find the first page with available space in the specified column
+   * @param requiredSpace - The space needed in pixels
+   * @param columnIndex - The column index to check (0-based)
+   * @returns The page index with available space, or -1 if none found
+   */
+  private findFirstAvailablePage(requiredSpace: number, columnIndex: number = 0): number {
+    // Iterate through all pages starting from the first
+    for (let pageIndex = 0; pageIndex < this.pages.length; pageIndex++) {
+      const pageCalculators = this.pageCalculators.get(pageIndex);
+
+      if (pageCalculators && pageCalculators[columnIndex]) {
+        const availableSpace = pageCalculators[columnIndex].calculateRemainingSpace();
+
+        if (availableSpace >= requiredSpace) {
+          return pageIndex;
+        }
+      }
+    }
+
+    // No page with sufficient space found
+    return -1;
+  }
+
+  /**
    * Add experience/position to layout
    * @param position - The position/experience data to add
    * @param columnIndex - The column index to place the content in (0-based, default: 0)
@@ -226,42 +250,61 @@ export class LayoutEngine {
     originalPosition?: Position | Education,
     columnIndex: number = 0
   ): Promise<PlacementResult> {
-    // Ensure we're using the correct page's calculator
+    const requiredSpace = measurement.totalHeight + (margins.top || 0) + (margins.bottom || 0);
+
+    // Find the first page with available space in the target column
+    const targetPageIndex = this.findFirstAvailablePage(requiredSpace, columnIndex);
+
+    if (targetPageIndex !== -1) {
+      // Found a page with space - switch to it temporarily
+      const originalPageIndex = this.currentPageIndex;
+      this.currentPageIndex = targetPageIndex;
+
+      // Update space calculator to the target page and column
+      const pageCalculators = this.pageCalculators.get(targetPageIndex);
+      if (pageCalculators && pageCalculators[columnIndex]) {
+        this.spaceCalculator = pageCalculators[columnIndex];
+      } else if (pageCalculators && pageCalculators.length > 0) {
+        this.spaceCalculator = pageCalculators[0];
+      }
+
+      const result = await this.placeComponentOnCurrentPage(component, measurement, margins, contentType, contentId, columnIndex);
+
+      // Restore current page index to the latest page (for next operation)
+      this.currentPageIndex = originalPageIndex;
+
+      return result;
+    }
+
+    // No existing page has space - check if we can fit on current page with splitting
     const pageCalculators = this.pageCalculators.get(this.currentPageIndex);
     if (pageCalculators && pageCalculators[columnIndex]) {
       this.spaceCalculator = pageCalculators[columnIndex];
     } else if (pageCalculators && pageCalculators.length > 0) {
-      // Fallback
       this.spaceCalculator = pageCalculators[0];
     }
 
-    // Check available space on current page
     const remainingSpace = this.spaceCalculator.calculateRemainingSpace();
-    const requiredSpace = measurement.totalHeight + (margins.top || 0) + (margins.bottom || 0);
 
-    if (requiredSpace <= remainingSpace) {
-      return await this.placeComponentOnCurrentPage(component, measurement, margins, contentType, contentId, columnIndex);
-    } else {
-      // Try smart splitting first (for experience/education)
-      if ((contentType === 'experience' || contentType === 'education') && originalPosition) {
-        const splitResult = await this.trySmartSplit(
-          originalPosition as Position,
-          measurement,
-          margins,
-          contentType,
-          contentId,
-          remainingSpace,
-          columnIndex
-        );
+    // Try smart splitting first (for experience/education)
+    if ((contentType === 'experience' || contentType === 'education') && originalPosition) {
+      const splitResult = await this.trySmartSplit(
+        originalPosition as Position,
+        measurement,
+        margins,
+        contentType,
+        contentId,
+        remainingSpace,
+        columnIndex
+      );
 
-        if (splitResult) {
-          return splitResult;
-        }
+      if (splitResult) {
+        return splitResult;
       }
-
-      // Fallback to whole block move
-      return await this.handleOverflow(component, measurement, margins, contentType, contentId, remainingSpace, columnIndex);
     }
+
+    // Fallback to whole block move (create new page)
+    return await this.handleOverflow(component, measurement, margins, contentType, contentId, remainingSpace, columnIndex);
   }
 
   /**
