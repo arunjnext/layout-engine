@@ -161,6 +161,42 @@ console.log(`Left: ${spaceLeft}px, Right: ${spaceRight}px`);
 - `[3, 2]` - Common resume layout (60%/40%)
 - `[3, 1]` - Wide main column (75%/25%)
 
+### Orphan Detection
+
+Prevent titles and headings from being left alone when their content moves to the next page:
+
+```typescript
+const engine = new ResumeLayoutEngine({
+  container: "#resume",
+  splitGuidelines: {
+    preventOrphans: true, // Enable orphan detection (default: true)
+    minChildrenToAvoidOrphan: 1, // Require at least 1 child (default: 1)
+    cascadeOrphanDetection: true, // Check parent hierarchy (default: true)
+  },
+});
+```
+
+**What it does:**
+
+- ✅ Prevents titles from being orphaned when all statements move to next page
+- ✅ Cascades detection upward: statements → intro → title
+- ✅ Configurable threshold for minimum children required
+- ✅ Improves visual hierarchy and readability
+
+**Example:**
+
+```typescript
+// Without orphan detection:
+// Page 1: [Title + Intro]  ← Orphaned!
+// Page 2: [All bullet points]
+
+// With orphan detection:
+// Page 1: [Other content]
+// Page 2: [Title + Intro + All bullet points]  ← Better!
+```
+
+See [docs/ORPHAN_DETECTION.md](./docs/ORPHAN_DETECTION.md) for detailed documentation.
+
 ## 📖 Documentation
 
 ### Configuration
