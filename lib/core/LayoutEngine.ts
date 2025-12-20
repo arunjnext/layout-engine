@@ -51,6 +51,36 @@ export class LayoutEngine {
   }
 
   /**
+   * Calculate the width of a specific column based on configuration
+   * @param columnIndex - The index of the column (0-based)
+   * @returns The calculated width in pixels, or undefined for single-column layout
+   */
+  private calculateColumnWidth(columnIndex: number): number | undefined {
+    const columnCount = this.templateConfig.style?.columnCount || 1;
+    if (columnCount <= 1) return undefined;
+
+    const pageWidth = this.pageConfig.width || 793.7; // A4 @ 96 DPI
+    const paddingRight = this.pageConfig.padding?.right || 20;
+    const paddingLeft = this.pageConfig.padding?.left || 20;
+    const availableWidth = pageWidth - (paddingLeft + paddingRight);
+    const columnGap = this.templateConfig.style?.columnGap || 20;
+    const totalGapWidth = columnGap * (columnCount - 1);
+    const contentWidth = availableWidth - totalGapWidth;
+
+    const columnWidths = this.templateConfig.style?.columnWidths;
+
+    if (columnWidths && columnWidths.length === columnCount) {
+      // Calculate width based on ratio
+      const totalRatio = columnWidths.reduce((sum, w) => sum + w, 0);
+      const columnRatio = columnWidths[columnIndex];
+      return (contentWidth * columnRatio) / totalRatio;
+    } else {
+      // Equal widths (default)
+      return contentWidth / columnCount;
+    }
+  }
+
+  /**
    * Create a new page
    */
   private createNewPage(): HTMLElement {
@@ -66,33 +96,36 @@ export class LayoutEngine {
 
     if (columnCount > 1) {
       page.classList.add('multi-column');
-      page.style.display = 'grid';
+
+      // Use Flexbox instead of Grid for explicit width control
+      page.style.display = 'flex';
+      page.style.flexDirection = 'row';
+      page.style.gap = `${columnGap}px`;
 
       // Get column widths from config or default to equal widths
       const columnWidths = this.templateConfig.style?.columnWidths;
 
-      if (columnWidths && columnWidths.length === columnCount) {
-        // Use custom ratios (e.g., [2, 1] becomes "2fr 1fr")
-        page.style.gridTemplateColumns = columnWidths.map(w => `${w}fr`).join(' ');
-      } else {
-        // Default: equal widths
-        page.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
-
-        // Warn if columnWidths is provided but doesn't match columnCount
-        if (columnWidths && columnWidths.length !== columnCount) {
-          console.warn(
-            `columnWidths array length (${columnWidths.length}) does not match columnCount (${columnCount}). Using equal widths.`
-          );
-        }
+      // Warn if columnWidths is provided but doesn't match columnCount
+      if (columnWidths && columnWidths.length !== columnCount) {
+        console.warn(
+          `columnWidths array length (${columnWidths.length}) does not match columnCount (${columnCount}). Using equal widths.`
+        );
       }
 
-      page.style.gap = `${columnGap}px`;
-
-      // Create columns
+      // Create columns with explicit widths
       for (let i = 0; i < columnCount; i++) {
         const column = document.createElement('div');
         column.className = `resume-column column-${i}`;
         column.dataset.columnIndex = i.toString();
+
+        // Calculate exact width for this column
+        const columnWidth = this.calculateColumnWidth(i);
+        if (columnWidth !== undefined) {
+          column.style.width = `${columnWidth}px`;
+          column.style.flexShrink = '0'; // Prevent shrinking
+          column.style.flexGrow = '0';   // Prevent growing
+        }
+
         // Ensure columns stretch to fill height
         column.style.height = '100%';
         page.appendChild(column);
@@ -474,36 +507,6 @@ export class LayoutEngine {
       console.warn(`Content too large for new page. Required: ${requiredSpace}px, Available: ${newPageRemainingSpace}px`);
       // Place it anyway (it will overflow, but at least it's visible)
       return await this.placeComponentOnCurrentPage(component, measurement, margins, contentType, contentId, columnIndex);
-    }
-  }
-
-  /**
-   * Calculate the width of a specific column based on configuration
-   * @param columnIndex - The index of the column (0-based)
-   * @returns The calculated width in pixels, or undefined for single-column layout
-   */
-  private calculateColumnWidth(columnIndex: number): number | undefined {
-    const columnCount = this.templateConfig.style?.columnCount || 1;
-    if (columnCount <= 1) return undefined;
-
-    const pageWidth = this.pageConfig.width || 793.7; // A4 @ 96 DPI
-    const paddingRight = this.pageConfig.padding?.right || 20;
-    const paddingLeft = this.pageConfig.padding?.left || 20;
-    const availableWidth = pageWidth - (paddingLeft + paddingRight);
-    const columnGap = this.templateConfig.style?.columnGap || 20;
-    const totalGapWidth = columnGap * (columnCount - 1);
-    const contentWidth = availableWidth - totalGapWidth;
-
-    const columnWidths = this.templateConfig.style?.columnWidths;
-
-    if (columnWidths && columnWidths.length === columnCount) {
-      // Calculate width based on ratio
-      const totalRatio = columnWidths.reduce((sum, w) => sum + w, 0);
-      const columnRatio = columnWidths[columnIndex];
-      return (contentWidth * columnRatio) / totalRatio;
-    } else {
-      // Equal widths (default)
-      return contentWidth / columnCount;
     }
   }
 

@@ -14,7 +14,14 @@ function initEngine() {
   engine = new ResumeLayoutEngine({
     container,
     page: {
-      height: 1123, // A4 at 96 DPI
+      width: 793.7, // A4 width at 96 DPI (210mm)
+      height: 1123, // A4 height at 96 DPI (297mm)
+      padding: {
+        top: 75.59,    // 20mm at 96 DPI
+        right: 75.59,  // 20mm at 96 DPI
+        bottom: 75.59, // 20mm at 96 DPI
+        left: 75.59,   // 20mm at 96 DPI
+      },
       marginTop: 20,
       marginBottom: 20,
       header: { height: 10 },
@@ -85,7 +92,14 @@ function initTwoColumnEngine() {
   engine = new ResumeLayoutEngine({
     container,
     page: {
-      height: 1123, // A4 at 96 DPI
+      width: 793.7, // A4 width at 96 DPI (210mm)
+      height: 1123, // A4 height at 96 DPI (297mm)
+      padding: {
+        top: 75.59,    // 20mm at 96 DPI
+        right: 75.59,  // 20mm at 96 DPI
+        bottom: 75.59, // 20mm at 96 DPI
+        left: 75.59,   // 20mm at 96 DPI
+      },
       marginTop: 20,
       marginBottom: 20,
       header: { height: 10 },
@@ -160,7 +174,14 @@ function initCustomWidthEngine() {
   engine = new ResumeLayoutEngine({
     container,
     page: {
-      height: 1123, // A4 at 96 DPI
+      width: 793.7, // A4 width at 96 DPI (210mm)
+      height: 1123, // A4 height at 96 DPI (297mm)
+      padding: {
+        top: 75.59,    // 20mm at 96 DPI
+        right: 75.59,  // 20mm at 96 DPI
+        bottom: 75.59, // 20mm at 96 DPI
+        left: 75.59,   // 20mm at 96 DPI
+      },
       marginTop: 20,
       marginBottom: 20,
       header: { height: 10 },

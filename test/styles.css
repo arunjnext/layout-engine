@@ -101,23 +101,25 @@ button#clear:hover {
 }
 
 .resume-page {
-  width: 210mm;
-  min-height: 297mm;
+  width: 793.7px; /* A4 width: 210mm at 96 DPI */
+  min-height: 1123px; /* A4 height: 297mm at 96 DPI */
   margin: 0 auto 20px;
-  padding: 20mm;
+  padding: 75.59px; /* 20mm at 96 DPI */
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   page-break-after: always;
   position: relative;
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .resume-column {
   border: 1px dashed #ccc;
   min-height: 100%;
+  box-sizing: border-box; /* Include border in width calculation */
 }
 
 .resume-page.multi-column {
-  padding: 20mm; /* Ensure padding is consistent */
+  padding: 75.59px; /* 20mm at 96 DPI - Ensure padding is consistent */
 }
 
 .resume-page::after {

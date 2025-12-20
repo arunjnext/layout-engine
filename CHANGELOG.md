@@ -24,6 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getRemainingSpace(columnIndex?)` - Can check specific columns
   - All methods default to column 0 for backward compatibility
 
+### 🐛 Fixed
+
+- **Column Overflow Issue** - Fixed columns overflowing page boundaries
+  - Switched from CSS Grid to Flexbox for multi-column layouts
+  - Columns now use explicit pixel widths matching calculated values
+  - Added `flex-shrink: 0` and `flex-grow: 0` to prevent unwanted resizing
+  - Ensures content stays within page template boundaries
+
 ### 🔧 Improved
 
 - **Code Quality**
@@ -31,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `calculateColumnWidth()` helper method
   - Eliminated code duplication across content methods
   - Centralized column width calculation logic
+  - Moved `calculateColumnWidth()` before `createNewPage()` for better code organization
 
 - **Documentation**
   - Updated API documentation with multi-column examples
